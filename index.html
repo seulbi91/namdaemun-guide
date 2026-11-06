@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F6F0E0">
 <meta name="robots" content="noindex,nofollow">
-<meta name="build" content="2026-11-06 · 편의성 정리(홈 현장 배치·타일 2개·동선 상단)+내 찜 동선">
+<meta name="build" content="2026-11-06 · 네이버지도 검색어 수정+편의성 정리+내 찜 동선">
 <title>남대문 아동복 2시 쇼핑 가이드 (남아·여아)</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -767,16 +767,19 @@ const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const BC={1:"#7ADDB4",2:"#8FD3F4",3:"#C6E83A",4:"#FFD65A",5:"#CFC4F5",6:"#F9A8DC",7:"#FF8F70"};
 const CIRC="①②③④⑤⑥⑦";
 /* 주소: 구글 지도 확인분(v) / 미확인(x)은 검색으로 열기 */
+/* 지도 열기: link(네이버지도 공유 링크)가 있으면 그대로, 없으면 nq로 네이버지도 검색
+   - 주소가 확인된 상가(v:1)는 주소만으로 검색 (이름+주소를 섞으면 결과가 안 나오는 경우가 있음)
+   - 주소 미확인 상가는 위치를 아는 기준점이나 짧은 이름으로 검색 → 정확한 링크를 받으면 link에 넣기 */
 const ADDR={
-  1:{t:"회현역 6번 출구 바로 앞",q:"씨티아이 아동복 회현역 남대문",v:0},
-  2:{t:"정확한 주소 미확인",q:"페인트타운 아동복 남대문시장",v:0},
-  3:{t:"정확한 주소 미확인",q:"웅이 아동복 남대문시장",v:0},
-  4:{t:"남대문시장8길 16",q:"남대문시장8길 16 포키아동복",v:1},
-  5:{t:"남대문시장길 40",q:"부르뎅아동복 남대문시장길 40",v:1},
-  6:{t:"남창동 31-5 · 마마 상가",q:"마마아동복 남창동 31-5",v:1},
-  7:{t:"남대문시장8길 7 · 삼익패션타운",q:"삼익패션타운 남대문시장8길 7",v:1}
+  1:{t:"회현역 6번 출구 바로 앞",nq:"회현역 6번출구",hint:"회현역 6번 출구 위치로 열어요",v:0,link:""},
+  2:{t:"정확한 주소 미확인",nq:"남대문시장 페인트타운",hint:"이름으로 검색해요 · 결과가 없을 수 있어요",v:0,link:""},
+  3:{t:"정확한 주소 미확인",nq:"남대문시장 웅이",hint:"이름으로 검색해요 · 결과가 없을 수 있어요",v:0,link:""},
+  4:{t:"남대문시장8길 16",nq:"서울 중구 남대문시장8길 16",v:1,link:""},
+  5:{t:"남대문시장길 40",nq:"서울 중구 남대문시장길 40",v:1,link:""},
+  6:{t:"남창동 31-5 · 마마 상가",nq:"서울 중구 남창동 31-5",v:1,link:""},
+  7:{t:"남대문시장8길 7 · 삼익패션타운",nq:"서울 중구 남대문시장8길 7",v:1,link:""}
 };
-const mapUrl=q=>"https://map.naver.com/p/search/"+encodeURIComponent(q);
+const mapUrl=A=>A.link||"https://map.naver.com/p/search/"+encodeURIComponent(A.nq);
 const pad=n=>String(n).padStart(2,"0");
 /* 일정: 요일(평일/토요일) · 출발 시간(분) */
 const BASE=840,TMIN=570,TSTEP=15;               // BASE: 콘 프리입장 시작(14:00)이자 PLAN 데이터 기준 시각
@@ -1130,7 +1133,7 @@ function bldBlock(k,list,extra){
   const hidden=S.filter(s=>s.n===k&&!visible(s)).length;
   return `<article class="bld" id="bld-${k}">
     <div class="bld-h" style="--bc:${BC[k]}"><div class="bld-no">${pad(k)}</div><div><h3>${B.name}<em>${time||tLab(k,"생략")}</em></h3><p>${B.floor} · ${B.desc}</p></div></div>
-    ${(()=>{const A=ADDR[k];return A?`<div class="addr"><span class="pin">${IC.pin}</span><span class="at"><b>${A.t}</b><small>${A.v?"구글 지도 기준":"검색으로 열어 확인해요"}</small></span><a class="mapbtn" href="${mapUrl(A.q)}" target="_blank" rel="noopener">네이버지도 열기</a></div>`:""})()}
+    ${(()=>{const A=ADDR[k];return A?`<div class="addr"><span class="pin">${IC.pin}</span><span class="at"><b>${A.t}</b><small>${A.link?"네이버지도 장소로 열어요":A.v?"주소로 열어요":A.hint}</small></span><a class="mapbtn" href="${mapUrl(A)}" target="_blank" rel="noopener">네이버지도 열기</a></div>`:""})()}
     ${list.length?list.map(storeRow).join(""):`<div class="emp">${kidOf(m)} 매장이 없는 상가예요.</div>`}
     ${extra&&noteOf(k)?`<div class="note">${noteOf(k)}</div>`:""}
     ${extra&&hidden?`<div class="hid">${other} 전문 ${hidden}곳은 숨겼어요 · <button data-switch="${m==="b"?"g":"b"}">${other}로 보기</button></div>`:""}
