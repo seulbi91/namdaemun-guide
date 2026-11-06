@@ -1,5 +1,5 @@
 # 사용법: pip install playwright pillow && playwright install chromium
-# python tests/qa_browser_test.py [file:// 또는 https:// 주소]  (생략하면 저장소의 index.html)
+# python tests/qa_browser_test.py [주소]  (생략하면 저장소의 index.html)
 import asyncio, json, random, re, sys
 from playwright.async_api import async_playwright
 
@@ -568,7 +568,7 @@ async def suite_media(b):
     ev = pg.evaluate
     r = await ev("""()=>{const o={};['CHIP','파이','보니토','라라랜드','오트밀'].forEach(n=>{const s=S.find(x=>x.b===n),m=(function(){try{return mediaOf(s)}catch(e){return null}})();o[n]=m?{ph:m.ph.length,ig:!!m.ig}:null});return o}""")
     shipped = await pg.evaluate('Object.entries(MEDIA).map(([k,m])=>[k,!!m.ig,(m.photos||[]).length])')
-    check('X0 출하 파일: 인스타 링크 10곳만 있고 사진은 아직 없음', len(shipped)==10 and all(x[1] and x[2]==0 for x in shipped), shipped)
+    check('X0 출하 파일: 인스타 링크 43곳만 있고 사진은 아직 없음', len(shipped)==43 and all(x[1] and x[2]==0 for x in shipped), shipped)
     await pg.evaluate('Object.keys(MEDIA).forEach(k=>delete MEDIA[k])')   # 아래 시험은 샘플 데이터만으로
     await ev(setup)
     r = await ev("""()=>{const o={};['CHIP','파이','보니토','라라랜드','오트밀'].forEach(n=>{const s=S.find(x=>x.b===n),m=mediaOf(s);o[n]=m?{ph:m.ph.length,ig:!!m.ig}:null});return o}""")
@@ -638,8 +638,11 @@ async def suite_media(b):
     # 출하 상태(MEDIA 비어 있음)에서는 어떤 매장에도 사진·링크 UI가 없음
     pg = await newpage(b, q='?t=08:00')
     await pg.evaluate('state.view="list";go("cards");setView("list")'); await pg.wait_for_timeout(400)
-    ic = await pg.evaluate("[...document.querySelectorAll('#buildings .st')].filter(e=>e.querySelector('a.mx-igi')).map(e=>e.querySelector('.b').firstChild.textContent.trim())")
-    check('X18 출하 상태: 인스타 아이콘은 링크가 있는 매장에만, 사진 UI·사용 원칙 문구는 없음', await pg.evaluate("document.querySelectorAll('.mx-ph').length")==0 and await pg.evaluate("document.querySelector('#mxNote').hidden") and len(ic)>=1 and all(n in ['피피','CHIP','콘 CON','파이','멜멜','아오스타','브로디제인','로제트 Rosette','페퍼 PEPPER','고유'] for n in ic), ic)
+    ic = await pg.evaluate("""()=>{const keys=new Set(Object.keys(MEDIA));const rows=[...document.querySelectorAll('#buildings .st')];
+      const withIcon=rows.filter(e=>e.querySelector('a.mx-igi')).map(e=>e.querySelector('.b').firstChild.textContent.trim());
+      const shouldHave=rows.map(e=>e.querySelector('.b').firstChild.textContent.trim()).filter(n=>keys.has(n));
+      return {n:withIcon.length,extra:withIcon.filter(n=>!keys.has(n)),missing:shouldHave.filter(n=>!withIcon.includes(n))}}""")
+    check('X18 출하 상태: 인스타 아이콘이 링크가 있는 매장에만(빠짐·넘침 없이), 사진 UI·사용 원칙 문구는 없음', await pg.evaluate("document.querySelectorAll('.mx-ph').length")==0 and await pg.evaluate("document.querySelector('#mxNote').hidden") and ic['n']>=20 and not ic['extra'] and not ic['missing'], ic)
     # 인스타 링크가 있는 실제 매장 10곳의 덱 카드가 작은 폰에서도 넘치지 않는지
     for (w, h) in ((390, 740), (360, 640), (320, 568)):
         pg3 = await newpage(b, w=w, h=h, q='?t=08:00')
@@ -732,6 +735,39 @@ async def suite_share(b):
         check('Y5 og.png 파일이 index.html 옆에 있고 1200x630, 600KB 이하', ok and im.size==(int(m['w']),int(m['h']))==(1200,630) and os.path.getsize(p) < 600*1024, (ok, im.size if im else None, os.path.getsize(p)//1024 if ok else None))
     await pg.context.close()
 
+
+# ---------------------------------------------------------------- A: 매장 연령·사이즈
+async def suite_age(b):
+    pg = await newpage(b, q='?t=08:00')
+    ev = pg.evaluate
+    bad = await ev("""()=>{const names=new Set(S.map(s=>s.b)),bad=[];for(const [k,v] of Object.entries(AGE)){if(!names.has(k))bad.push(k+': 없는 매장명');if(typeof v!=='string'||!v.trim())bad.push(k+': 빈 값');else if(v.length>30)bad.push(k+': 너무 김');else if(/[<>"]/.test(v))bad.push(k+': 특수문자')}return bad}""")
+    check('A1 연령·사이즈 데이터가 앱의 매장명과 맞고 짧음', not bad and await ev('Object.keys(AGE).length')>=12, bad)
+    await ev('state.view="list";state.lf="all";go("cards");setView("list")'); await pg.wait_for_timeout(400)
+    li = await ev("""()=>{const row=n=>[...document.querySelectorAll('#buildings .st')].find(e=>e.querySelector('.b').firstChild.textContent.trim()===n);const c=row('CHIP'),l=row('라라랜드');return {chip:c.querySelector('.age')?.textContent||'',lala:!!l.querySelector('.age'),note:!document.querySelector('#ageNote').hidden}}""")
+    check('A2 목록: 정보 있는 매장에만 사이즈 한 줄, 없는 매장은 그대로', li['chip']=='사이즈 XXS(6M)~M(24M)' and not li['lala'], li)
+    check('A3 하단에 사이즈 표기 안내(개월 수 설명)가 보임', li['note'] and '개월' in await ev('document.querySelector("#ageNote").textContent'))
+    for (w, h) in ((390, 740), (360, 640), (320, 568)):
+        p2 = await newpage(b, w=w, h=h, q='?t=08:00')
+        res = await p2.evaluate("""async()=>{const out=[];for(const mode of ['b','g']){setMode(mode,true);
+          for(const s of S.filter(x=>visible(x)&&AGE[x.b])){state.db=s.n;state.dpick=false;state.view='deck';Object.keys(seenM()).forEach(k=>delete seenM()[k]);go('cards');setView('deck');
+            const all=deckAll(),i=all.findIndex(x=>x.id===s.id);all.slice(0,i).forEach(x=>seenM()[x.id]='s');renderDeck();await new Promise(r=>setTimeout(r,40));
+            const c=document.querySelector('#stage .dcard.cur0'),cd=c.querySelector('.cbody'),a=c.querySelector('.age');
+            out.push([mode+':'+s.b,c.querySelector('h3').textContent===s.b,cd.scrollHeight-cd.clientHeight,!!a,a?a.scrollWidth>a.clientWidth+1:false])}}return out}""")
+        badc = [r for r in res if not r[1] or r[2] > 2 or not r[3]]
+        trunc = [r[0] for r in res if r[4]]
+        check(f'A4 덱 카드({w}x{h}): 사이즈 칩이 보이고 카드가 넘치지 않음({len(res)}건)', not badc and len(res)>=10, badc)
+        if w == 320: check('A5 320px에서도 사이즈 글이 잘리지 않음(잘리면 목록에 표시)', not trunc, trunc)
+        await p2.context.close()
+    gz = await ev("""()=>{const bad=[];for(const s of S){if(!GLAB[s.g])bad.push(s.b+': 구분 값');if(!cardHTML(s,0).includes(GLAB[s.g]))bad.push(s.b+': 카드에 구분 없음')}
+      const c={u:0,b:0,g:0};S.forEach(s=>c[s.g]++);return {bad,c}}""")
+    check('Z1 모든 매장이 공용/남아 전문/여아 전문 중 하나이고 카드에 구분이 표시됨', not gz['bad'] and sum(gz['c'].values())==len(await ev('S')) , gz)
+    await ev('state.view="list";state.lf="all";go("cards");setView("list")'); await pg.wait_for_timeout(300)
+    zl = await ev("""()=>{const bad=[];for(const e of document.querySelectorAll('#buildings .st')){const n=e.querySelector('.b').firstChild.textContent.trim(),s=S.find(x=>x.b===n);
+        const t=e.querySelector('.b').textContent;const ok=s.g==='u'?(!!e.querySelector('.badge.gen')&&!t.includes('전문')):t.includes(s.g==='b'?'남아 전문':'여아 전문');if(!ok)bad.push(n)}return bad}""")
+    check('Z2 목록: 공용은 "공용", 전문 매장은 "남아/여아 전문" 배지로 구분됨', not zl, zl)
+    check('A6 연령·사이즈 기능 중 오류 없음', not pg._errs, pg._errs[:2])
+    await pg.context.close()
+
 # ---------------------------------------------------------------- O: monkey test
 async def suite_monkey(b, steps=320, seed=7):
     rnd = random.Random(seed)
@@ -767,7 +803,7 @@ async def suite_monkey(b, steps=320, seed=7):
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch()
-        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine, suite_layout_ux, suite_mascot, suite_media, suite_transit, suite_share):
+        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine, suite_layout_ux, suite_mascot, suite_media, suite_transit, suite_share, suite_age):
             try:
                 await fn(b)
             except Exception as e:
