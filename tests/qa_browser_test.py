@@ -1,4 +1,4 @@
-# 사용법: pip install playwright && playwright install chromium
+# 사용법: pip install playwright pillow && playwright install chromium
 # python tests/qa_browser_test.py [file:// 또는 https:// 주소]  (생략하면 저장소의 index.html)
 import asyncio, json, random, re, sys
 from playwright.async_api import async_playwright
@@ -11,7 +11,7 @@ R = []
 def check(name, ok, detail=''):
     R.append((name, bool(ok), detail))
 
-async def newpage(b, w=390, h=860, init=None, reduced=False, q='?t=08:00'):
+async def newpage(b, w=390, h=860, init=None, reduced=False, q='?t=08:00', base=None):
     ctx = await b.new_context(viewport={'width': w, 'height': h}, device_scale_factor=1,
                               reduced_motion='reduce' if reduced else 'no-preference')
     pg = await ctx.new_page()
@@ -22,7 +22,8 @@ async def newpage(b, w=390, h=860, init=None, reduced=False, q='?t=08:00'):
     if init: await pg.add_init_script(init)
     head, _, frag = q.partition('#')
     if 'd=' not in head: head += ('&' if '?' in head else '?') + 'd=wk'   # 실행하는 날의 요일과 상관없이 평일로 고정
-    await pg.goto(URL + head + ('#' + frag if frag else ''))
+    if 'go=' not in head and 'nogo' not in head: head += '&go=car'   # 기존 점검은 자동차 기준으로 고정 (지하철은 suite_transit 에서)
+    await pg.goto((base or URL) + head + ('#' + frag if frag else ''))
     await pg.wait_for_timeout(350)
     return pg
 
@@ -240,6 +241,8 @@ async def suite_storage(b):
         'day=5': {'nm2.day': '5'},
         'plan=x': {'nm2.plan': '"x"'},
         'plan=5': {'nm2.plan': '5'},
+        'go=5': {'nm2.go': '5'},
+        'go=x': {'nm2.go': '"x"'},
     }
     for name, kv in cases.items():
         init = ''.join(f'localStorage.setItem({json.dumps(k)},{json.dumps(v)});' for k, v in kv.items())
@@ -303,6 +306,20 @@ async def suite_data(b):
     check('F1 데이터 정합성(id·상가·배지·PLAN·PRIO)', not issues, issues[:6])
     mism = await pg.evaluate('''()=>{const o=[];for(const m of ['b','g']){setMode(m,true);for(let k=1;k<=7;k++){const has=S.some(s=>s.n===k&&visible(s));if(!has&&tOf(k))o.push(m+' bld'+k+' has time but no stores')}}return o}''')
     check('F2 매장이 없는 상가에 도착 시각 없음', not mism, mism)
+    ln = await pg.evaluate('''()=>{const bad=[],seen=new Set();for(let k=1;k<=7;k++){const A=ADDR[k];if(!A||!/^https:\\/\\/naver\\.me\\/[A-Za-z0-9]+$/.test(A.link||''))bad.push(k+':형식');else if(seen.has(A.link))bad.push(k+':중복');else seen.add(A.link);
+        if(A&&A.link&&mapUrl(A)!==A.link)bad.push(k+':mapUrl')}return bad}''')
+    check('F3 상가 지도 링크 7곳이 모두 naver.me 공유 링크이고 서로 다름', not ln, ln)
+    md = await pg.evaluate('''()=>{const bad=[],names=new Set(S.map(s=>s.b));
+        for(const [k,m] of Object.entries(MEDIA)){
+          if(!names.has(k))bad.push(k+': 없는 매장명');
+          if(m.ig&&!IG_OK(m.ig))bad.push(k+': 인스타 링크 형식');
+          if(m.ig&&/cdninstagram|fbcdn|scontent/.test(m.ig))bad.push(k+': 인스타 이미지 주소');
+          const ph=m.photos||[];if(ph.length>3)bad.push(k+': 사진 3장 초과');
+          ph.forEach((p,i)=>{if(!PH_OK(p))bad.push(k+' 사진'+(i+1)+': img/ 경로·credit·alt 규칙 위반');
+            if(/^(https?:)?\\/\\//.test(String(p.src))||/instagram|cdninstagram|fbcdn|scontent/i.test(String(p.src)))bad.push(k+' 사진'+(i+1)+': 외부/인스타 이미지 금지');
+            if(/직접|허락|허가|허용|@/.test(String(p.credit))===false)bad.push(k+' 사진'+(i+1)+': 출처(credit)에 촬영/허락 표기 없음')})}
+        return bad}''')
+    check('F4 매장 사진·인스타 데이터가 법적 기준(자체 파일·출처 표기·인스타는 링크만)을 지킴', not md, md)
     await pg.context.close()
 
 # ---------------------------------------------------------------- G: time boundaries
@@ -529,6 +546,192 @@ async def suite_mascot(b):
     check('K22 개선 검증 중 오류 없음', not pg._errs)
     await pg.context.close()
 
+
+# ---------------------------------------------------------------- X: 매장 사진 3장 + 인스타 링크
+async def suite_media(b):
+    import tempfile, shutil, os
+    from PIL import Image
+    tmp = tempfile.mkdtemp()
+    shutil.copy(os.path.join(os.path.dirname(URL.replace('file://','')), 'index.html') if URL.startswith('file://') else '/mnt/user-data/outputs/index.html', tmp + '/index.html')
+    os.makedirs(tmp + '/img')
+    for i, c in enumerate(['#F2B8C6', '#9ED8F0', '#F6D55C'], 1):
+        Image.new('RGB', (160, 200), c).save(f'{tmp}/img/t-{i}.webp', 'WEBP')
+    base = 'file://' + tmp + '/index.html'
+    setup = """(()=>{
+      MEDIA['CHIP']={ig:'https://www.instagram.com/reel/AbC123/',photos:[{src:'img/t-1.webp',alt:'CHIP 진열 1',credit:'직접 촬영'},{src:'img/t-2.webp',alt:'CHIP 진열 2',credit:'직접 촬영'},{src:'img/t-3.webp',alt:'CHIP 진열 3',credit:'직접 촬영'}]};
+      MEDIA['파이']={ig:'https://www.instagram.com/pie_kids/'};
+      MEDIA['보니토']={photos:[{src:'img/missing.webp',alt:'없는 파일',credit:'직접 촬영'}]};
+      MEDIA['라라랜드']={ig:'https://scontent.cdninstagram.com/v/abc.jpg',photos:[{src:'https://scontent.cdninstagram.com/v/abc.jpg',alt:'외부 이미지',credit:'직접 촬영'},{src:'img/t-1.webp',alt:'출처 없음',credit:''}]};
+      MEDIA['오트밀']={ig:'http://www.instagram.com/oatmeal/',photos:[{src:'img/t-1.webp',alt:'',credit:'직접 촬영'}]};
+    })()"""
+    pg = await newpage(b, q='?t=08:00', base=base)
+    ev = pg.evaluate
+    r = await ev("""()=>{const o={};['CHIP','파이','보니토','라라랜드','오트밀'].forEach(n=>{const s=S.find(x=>x.b===n),m=(function(){try{return mediaOf(s)}catch(e){return null}})();o[n]=m?{ph:m.ph.length,ig:!!m.ig}:null});return o}""")
+    shipped = await pg.evaluate('Object.entries(MEDIA).map(([k,m])=>[k,!!m.ig,(m.photos||[]).length])')
+    check('X0 출하 파일: 인스타 링크 10곳만 있고 사진은 아직 없음', len(shipped)==10 and all(x[1] and x[2]==0 for x in shipped), shipped)
+    await pg.evaluate('Object.keys(MEDIA).forEach(k=>delete MEDIA[k])')   # 아래 시험은 샘플 데이터만으로
+    await ev(setup)
+    r = await ev("""()=>{const o={};['CHIP','파이','보니토','라라랜드','오트밀'].forEach(n=>{const s=S.find(x=>x.b===n),m=mediaOf(s);o[n]=m?{ph:m.ph.length,ig:!!m.ig}:null});return o}""")
+    check('X1 규칙을 지킨 데이터만 통과(CHIP 사진3+링크, 파이 링크만)', r['CHIP']=={'ph':3,'ig':True} and r['파이']=={'ph':0,'ig':True}, r)
+    check('X2 규칙을 어긴 데이터는 화면에서 제외(인스타 이미지·http 링크·출처 없음·alt 없음)', r['라라랜드'] is None and r['오트밀'] is None, (r['라라랜드'], r['오트밀']))
+    # 목록
+    await ev('state.view="list";state.lf="all";state.q="";go("cards");setView("list")'); await pg.wait_for_timeout(500)
+    li = await ev("""()=>{const row=n=>{const el=[...document.querySelectorAll('#buildings .st')].find(e=>e.querySelector('.b').textContent.startsWith(n));return el};
+      const c=row('CHIP'),p=row('파이'),l=row('라라랜드'),bn=row('보니토');
+      return {chipThumbs:c.querySelectorAll('.mx-ph').length,chipIg:!!c.querySelector('a.mx-igi'),pieThumbs:p.querySelectorAll('.mx-ph').length,pieIg:!!p.querySelector('a.mx-igi'),lalaExtra:l.querySelectorAll('.mx-ph,a.mx-igi').length,bonitoThumbs:bn.querySelectorAll('.mx-ph').length,
+        loaded:[...c.querySelectorAll('.mx-ph img')].every(i=>i.complete&&i.naturalWidth>0),lazy:[...c.querySelectorAll('.mx-ph img')].every(i=>i.loading==='lazy'),heart:!!c.querySelector('.heart')}}""")
+    check('X3 목록: 사진 3장 + 인스타 아이콘, 사진 없는 매장은 그대로', li['chipThumbs']==3 and li['chipIg'] and li['pieThumbs']==0 and li['pieIg'] and li['lalaExtra']==0 and li['heart'], li)
+    check('X4 목록: 사진이 실제로 로드되고 lazy 로딩', li['loaded'] and li['lazy'], li)
+    check('X5 깨진 사진(없는 파일)은 칸 자체가 사라짐', li['bonitoThumbs']==0, li)
+    lk = await ev("""()=>{const a=[...document.querySelectorAll('#buildings .st')].find(e=>e.querySelector('.b').textContent.startsWith('CHIP')).querySelector('a.mx-igi');return {href:a.href,target:a.target,rel:a.rel,label:a.getAttribute('aria-label')}}""")
+    check('X6 인스타 링크는 새 탭·noopener noreferrer·접근성 이름', lk['target']=='_blank' and 'noopener' in lk['rel'] and 'noreferrer' in lk['rel'] and 'CHIP' in lk['label'] and lk['href'].startswith('https://www.instagram.com/'), lk)
+    # 크게 보기
+    await pg.click('#buildings .st:has(.b:text-is("CHIP")) .mx-ph >> nth=1'); await pg.wait_for_timeout(350)
+    v = await ev("""()=>({on:document.querySelector('#sheetWrap').classList.contains('on'),kind:sheetKind,i:sheetArg.i,cr:document.querySelector('#sheet .cr').textContent,alt:document.querySelector('#sheet .pvimg img').alt,ig:!!document.querySelector('#sheet a.mx-ig'),focusIn:document.querySelector('#sheet').contains(document.activeElement)})""")
+    check('X7 사진을 누르면 크게 보기(2/3, 출처 표시, 인스타 버튼)', v['on'] and v['kind']=='photo' and v['i']==1 and '2 / 3' in v['cr'] and '직접 촬영' in v['cr'] and v['alt']=='CHIP 진열 2' and v['ig'] and v['focusIn'], v)
+    await pg.click('#sheet [data-pv="1"]'); await pg.wait_for_timeout(120)
+    n1 = await ev('sheetArg.i'); await pg.click('#sheet [data-pv="1"]'); await pg.wait_for_timeout(120)
+    n2 = await ev('sheetArg.i'); await pg.keyboard.press('ArrowLeft'); await pg.wait_for_timeout(120)
+    n3 = await ev('sheetArg.i')
+    check('X8 다음/이전·방향키로 넘기고 끝에서 순환', (n1,n2,n3)==(2,0,2), (n1,n2,n3))
+    box = await ev("(()=>{const r=document.querySelector('#pvimg').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()")
+    await pg.mouse.move(box[0]+60,box[1]); await pg.mouse.down(); await pg.mouse.move(box[0]-60,box[1],steps=6); await pg.mouse.up(); await pg.wait_for_timeout(150)
+    check('X9 사진을 왼쪽으로 밀면 다음 사진', await ev('sheetArg.i')==0, await ev('sheetArg.i'))
+    await pg.keyboard.press('Escape'); await pg.wait_for_timeout(200)
+    back = await ev('document.activeElement.className')
+    check('X10 Esc로 닫고 눌렀던 사진 버튼으로 포커스 복귀', not await ev("document.querySelector('#sheetWrap').classList.contains('on')") and 'mx-ph' in back, back)
+    # 카드(덱)
+    await ev('state.db=1;state.dpick=false;state.view="deck";go("cards");setView("deck")'); await pg.wait_for_timeout(300)
+    for _ in range(12):
+        if await ev('document.querySelector("#stage .dcard.cur0 h3").textContent')=='CHIP': break
+        await pg.click('#bSkip'); await pg.wait_for_timeout(420)
+    dk = await ev("""()=>{const c=document.querySelector('#stage .dcard.cur0'),cb=c.querySelector('.cb'),cd=c.querySelector('.cbody');return {name:c.querySelector('h3').textContent,hero:cb.classList.contains('mxh'),ph:cb.querySelectorAll('.mx-ph').length,chip:!!cb.querySelector('.mx-chip'),ig:!!c.querySelector('a.mx-ig'),loaded:[...cb.querySelectorAll('.mx-ph img')].every(i=>i.complete&&i.naturalWidth>0),overflow:cd.scrollHeight-cd.clientHeight,cardH:Math.round(c.getBoundingClientRect().height)}}""")
+    check('X11 덱 카드: 윗부분이 사진 3장(상가 알약 포함) + 인스타 버튼, 내용이 넘치지 않음', dk['name']=='CHIP' and dk['hero'] and dk['ph']==3 and dk['chip'] and dk['ig'] and dk['loaded'] and dk['overflow']<=2, dk)
+    h0 = await ev('state.hist.length')
+    await pg.click('#stage .dcard.cur0 .mx-ph >> nth=0'); await pg.wait_for_timeout(300)
+    opened = await ev("document.querySelector('#sheetWrap').classList.contains('on')&&sheetKind==='photo'")
+    await pg.keyboard.press('Escape'); await pg.wait_for_timeout(250)
+    check('X12 덱에서 사진을 탭하면 크게 보기가 열리고 카드는 넘어가지 않음', opened and await ev('state.hist.length')==h0, (opened, h0))
+    pb = await ev("(()=>{const r=document.querySelector('#stage .dcard.cur0 .mx-ph').getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()")
+    await pg.mouse.move(pb[0],pb[1]); await pg.mouse.down(); await pg.mouse.move(pb[0]+170,pb[1]+8,steps=8); await pg.mouse.up(); await pg.wait_for_timeout(600)
+    check('X13 사진 위에서 끌어도 카드가 넘어가고, 크게 보기는 열리지 않음', await ev('state.hist.length')==h0+1 and not await ev("document.querySelector('#sheetWrap').classList.contains('on')"), await ev('state.hist.length'))
+    # 하단 문구
+    await ev('mxNote()')
+    note = await ev("({hidden:document.querySelector('#mxNote').hidden,text:document.querySelector('#mxNote').textContent})")
+    check('X15 사진이 있으면 사용 원칙 문구가 보임', not note['hidden'] and '허락' in note['text'], note)
+    # XSS 방어
+    await ev("""MEDIA['아오유스튜디오']={photos:[{src:'img/t-1.webp',alt:'<img src=x onerror=alert(1)>',credit:'<b>직접</b> 촬영'}]}""")
+    await ev('openSheet("photo",{id:S.find(x=>x.b==="아오유스튜디오").id,i:0})'); await pg.wait_for_timeout(200)
+    xs = await ev("({bold:document.querySelectorAll('#sheet .cr b').length,inj:document.querySelectorAll('#sheet img[src=x]').length})")
+    check('X16 출처·설명 글에 HTML이 들어 있어도 실행되지 않음(이스케이프)', xs['bold']==0 and xs['inj']==0, xs)
+    check('X17 사진·링크 기능 중 오류 없음', not pg._errs, pg._errs[:2])
+    await pg.context.close()
+    for (w, h) in ((390, 740), (360, 640), (320, 568)):
+        pg2 = await newpage(b, w=w, h=h, q='?t=08:00', base=base)
+        await pg2.evaluate(setup); await pg2.evaluate('state.db=1;state.dpick=false;state.view="deck";go("cards");setView("deck")'); await pg2.wait_for_timeout(300)
+        for _ in range(12):
+            if await pg2.evaluate('document.querySelector("#stage .dcard.cur0 h3").textContent')=='CHIP': break
+            await pg2.click('#bSkip'); await pg2.wait_for_timeout(420)
+        r2 = await pg2.evaluate("(()=>{const c=document.querySelector('#stage .dcard.cur0'),cd=c.querySelector('.cbody'),cb=c.querySelector('.cb').getBoundingClientRect();return {over:cd.scrollHeight-cd.clientHeight,cbH:Math.round(cb.height),cbW:Math.round(cb.width)}})()")
+        check(f'X11b 작은 폰({w}x{h})에서도 덱 카드 내용이 넘치지 않음', r2['over']<=2, r2)
+        await pg2.context.close()
+    # 출하 상태(MEDIA 비어 있음)에서는 어떤 매장에도 사진·링크 UI가 없음
+    pg = await newpage(b, q='?t=08:00')
+    await pg.evaluate('state.view="list";go("cards");setView("list")'); await pg.wait_for_timeout(400)
+    ic = await pg.evaluate("[...document.querySelectorAll('#buildings .st')].filter(e=>e.querySelector('a.mx-igi')).map(e=>e.querySelector('.b').firstChild.textContent.trim())")
+    check('X18 출하 상태: 인스타 아이콘은 링크가 있는 매장에만, 사진 UI·사용 원칙 문구는 없음', await pg.evaluate("document.querySelectorAll('.mx-ph').length")==0 and await pg.evaluate("document.querySelector('#mxNote').hidden") and len(ic)>=1 and all(n in ['피피','CHIP','콘 CON','파이','멜멜','아오스타','브로디제인','로제트 Rosette','페퍼 PEPPER','고유'] for n in ic), ic)
+    # 인스타 링크가 있는 실제 매장 10곳의 덱 카드가 작은 폰에서도 넘치지 않는지
+    for (w, h) in ((390, 740), (360, 640), (320, 568)):
+        pg3 = await newpage(b, w=w, h=h, q='?t=08:00')
+        res = await pg3.evaluate("""async()=>{const out=[];for(const mode of ['b','g']){setMode(mode,true);
+          for(const s of S.filter(x=>visible(x)&&MEDIA[x.b])){state.db=s.n;state.dpick=false;state.view='deck';Object.keys(seenM()).forEach(k=>delete seenM()[k]);go('cards');setView('deck');
+            const all=deckAll(),i=all.findIndex(x=>x.id===s.id);all.slice(0,i).forEach(x=>seenM()[x.id]='s');renderDeck();await new Promise(r=>setTimeout(r,40));
+            const c=document.querySelector('#stage .dcard.cur0'),cd=c.querySelector('.cbody');
+            out.push([mode+':'+s.b,c.querySelector('h3').textContent===s.b,cd.scrollHeight-cd.clientHeight,!!c.querySelector('a.mx-ig')])}}return out}""")
+        bad = [r for r in res if not r[1] or r[2] > 2 or not r[3]]
+        check(f'X20 인스타 링크가 있는 매장의 덱 카드가 {w}x{h}에서 남아·여아 모드 모두 넘치지 않고 버튼이 보임({len(res)}건)', not bad and len(res)>=10, bad)
+        await pg3.context.close()
+    await pg.context.close()
+
+    # 사진 변환 도구: 위치정보 제거·크기 축소 (저장소에 tools/ 가 있을 때만)
+    tool = None
+    for cand in (os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tools', 'make_photos.py'), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools', 'make_photos.py')):
+        if os.path.exists(cand): tool = cand; break
+    if tool:
+        import subprocess
+        d = tempfile.mkdtemp(); os.makedirs(d + '/in')
+        ex = Image.Exif(); ex[0x8825] = {1: 'N', 2: (37.0, 33.0, 30.0), 3: 'E', 4: (126.0, 58.0, 40.0)}
+        Image.new('RGB', (3024, 4032), '#9ED8F0').save(d + '/in/chip-1.jpg', 'JPEG', exif=ex)
+        r = subprocess.run([sys.executable, tool, d + '/in', '--out', d + '/out'], capture_output=True, text=True, encoding='utf-8')
+        out = Image.open(d + '/out/chip-1.webp') if os.path.exists(d + '/out/chip-1.webp') else None
+        ok = bool(out) and r.returncode == 0 and not out.getexif() and out.width <= 640 and os.path.getsize(d + '/out/chip-1.webp') < 80 * 1024
+        check('X19 사진 변환 도구: GPS 위치정보 제거 + 640px 이하 + 80KB 미만', ok, (r.returncode, r.stdout[-200:]))
+        shutil.rmtree(d, ignore_errors=True)
+    shutil.rmtree(tmp, ignore_errors=True)
+
+
+# ---------------------------------------------------------------- T: 이동 수단(지하철 기본 / 자동차)
+async def suite_transit(b):
+    pg = await newpage(b, q='?t=10:00&nogo=1')
+    ev = pg.evaluate
+    check('T1 처음 열면 기본은 지하철', await ev('state.go') == 'sub', await ev('state.go'))
+    a = await ev('(()=>{const x=items()[0];return {h:x.h,t:x.t,p:x.p}})()')
+    check('T2 첫 단계가 "회현역 도착"(출발 10분 전, 6번 출구 안내, 주차 문구 없음)', a['h']=='회현역 도착' and a['t']=='13:50' and '6번 출구' in a['p'] and '주차' not in a['p'], a)
+    cd = await ev('cdInfo().sub')
+    check('T3 카운트다운 안내도 회현역 기준', '회현역 6번 출구 도착' in cd and '주차' not in cd, cd)
+    facts = await ev('[...document.querySelectorAll("#facts .fact")].map(e=>e.textContent.replace(/\\s+/g," "))')
+    check('T4 홈 카드에 주차권 대신 지하철 안내', any('회현역' in f for f in facts) and not any('주차권' in f for f in facts), facts)
+    await ev('go("info");setPanel("park")'); await pg.wait_for_timeout(200)
+    inf = await ev('({tab:document.querySelector("#parkTab").textContent,first:document.querySelector("#p-park .h3").textContent,hasCar:document.querySelector("#p-park").textContent.includes("어반포트")})')
+    check('T5 정보 탭 "교통": 지하철 안내가 먼저, 주차 정보는 "차로 갈 때"로 남음', inf['tab']=='교통' and inf['first']=='지하철로 갈 때' and inf['hasCar'], inf)
+    await ev('setPanel("prep")')
+    prep = await ev('[...document.querySelectorAll("#p-prep li span")].map(e=>e.textContent)')
+    check('T6 준비물: 주차권 대신 교통카드', '교통카드 잔액 확인' in prep and not any('주차권' in x for x in prep), prep)
+    check('T7 말풍선에 주차 이야기 없음', await ev('quips().every(q=>!q.includes("주차"))'))
+    await ev('go("home")'); await pg.wait_for_timeout(250)
+    nx = await ev('document.querySelector("#next").innerText')
+    check('T8 다음 일정 카드: 회현역 도착 + "씨티아이 위치" 버튼', '회현역 도착' in nx and '씨티아이 위치' in nx and '주차 정보' not in nx, nx[:80])
+    await pg.click('#next [data-bld="1"]'); await pg.wait_for_timeout(250)
+    check('T9 "씨티아이 위치"를 누르면 씨티아이 상가 시트(네이버지도 열기 포함)', await ev('sheetKind==="bld"&&!!document.querySelector("#sheet .mapbtn")'))
+    await pg.keyboard.press('Escape'); await pg.wait_for_timeout(150)
+    # 정확한 시간 경계
+    for t, exp in (('13:49','before'),('13:50','during')):
+        p2 = await newpage(b, q=f'?t={t}&go=sub')
+        check(f'T10 지하철 시간 경계 {t} → {exp}', await p2.evaluate('stage().ph') == exp, await p2.evaluate('stage().ph'))
+        await p2.context.close()
+    # 도착 체크 → 자동차로 바꿔도 체크 유지, 저장
+    await ev('state.done.add(kOf(items()[0]));save()')
+    await pg.click('.hello .tedit'); await pg.wait_for_timeout(250)
+    seg = await ev('[...document.querySelectorAll("#sheet [data-gset]")].map(b=>b.textContent+":"+b.getAttribute("aria-pressed"))')
+    check('T11 일정 시트에 이동 수단(지하철 선택됨)', seg == ['지하철:true', '자동차:false'], seg)
+    await pg.click('#sheet [data-gset="car"]'); await pg.click('#sheet [data-tapply]'); await pg.wait_for_timeout(350)
+    r = await ev('({go:state.go,saved:localStorage.getItem("nm2.go"),h:items()[0].h,t:items()[0].t,done:state.done.has(kOf(items()[0])),toast:document.querySelector("#toast").textContent})')
+    check('T12 자동차로 바꾸면 "도착 · 주차"(30분 전)로 돌아가고 저장됨', r['go']=='car' and r['saved']=='"car"' and r['h']=='도착 · 주차' and r['t']=='13:30' and '자동차' in r['toast'], r)
+    check('T13 이동 수단을 바꿔도 도착 체크는 유지', r['done'], r)
+    await pg.goto((URL) + '?t=10:00'); await pg.wait_for_timeout(350)
+    check('T14 새로고침 후에도 자동차 유지', await ev('state.go') == 'car')
+    check('T15 이동 수단 기능 중 오류 없음', not pg._errs, pg._errs[:2])
+    await pg.context.close()
+
+
+# ---------------------------------------------------------------- Y: 링크 공유 미리보기(카카오톡 등)
+async def suite_share(b):
+    import os
+    pg = await newpage(b)
+    m = await pg.evaluate("""()=>{const g=(a,v)=>document.querySelector('meta['+a+'="'+v+'"]')?.content||'';
+      return {ogTitle:g('property','og:title'),ogDesc:g('property','og:description'),ogImg:g('property','og:image'),ogUrl:g('property','og:url'),ogType:g('property','og:type'),w:g('property','og:image:width'),h:g('property','og:image:height'),alt:g('property','og:image:alt'),tw:g('name','twitter:card'),twImg:g('name','twitter:image'),desc:g('name','description'),icon:!!document.querySelector('link[rel=icon]'),staticTitle:document.title}}""")
+    check('Y1 공유 태그: 제목·설명·이미지·주소·유형이 모두 있음', all(m[k] for k in ('ogTitle','ogDesc','ogImg','ogUrl','ogType','alt','desc')), m)
+    check('Y2 미리보기 이미지는 https 절대 주소(og.png)이고 og:url과 같은 사이트', m['ogImg'].startswith('https://') and m['ogImg'].endswith('/og.png') and m['ogImg'].split('/')[2]==m['ogUrl'].split('/')[2]==m['twImg'].split('/')[2], m)
+    check('Y3 제목이 특정 시간("2시")에 묶이지 않음 + 설명 길이 적당', '2시' not in m['ogTitle'] and 15 <= len(m['ogDesc']) <= 100, (m['ogTitle'], len(m['ogDesc'])))
+    check('Y4 트위터/기타 앱용 큰 이미지 카드 + 파비콘', m['tw']=='summary_large_image' and m['icon'], m)
+    if URL.startswith('file://'):
+        from PIL import Image
+        p = os.path.join(os.path.dirname(URL.replace('file://','')), 'og.png')
+        ok = os.path.exists(p)
+        im = Image.open(p) if ok else None
+        check('Y5 og.png 파일이 index.html 옆에 있고 1200x630, 600KB 이하', ok and im.size==(int(m['w']),int(m['h']))==(1200,630) and os.path.getsize(p) < 600*1024, (ok, im.size if im else None, os.path.getsize(p)//1024 if ok else None))
+    await pg.context.close()
+
 # ---------------------------------------------------------------- O: monkey test
 async def suite_monkey(b, steps=320, seed=7):
     rnd = random.Random(seed)
@@ -564,7 +767,7 @@ async def suite_monkey(b, steps=320, seed=7):
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch()
-        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine, suite_layout_ux, suite_mascot):
+        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine, suite_layout_ux, suite_mascot, suite_media, suite_transit, suite_share):
             try:
                 await fn(b)
             except Exception as e:

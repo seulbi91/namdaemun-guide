@@ -5,8 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F6F0E0">
 <meta name="robots" content="noindex,nofollow">
-<meta name="build" content="2026-11-07 · 네이버지도 장소 링크 7곳 반영+걷는 캐릭터+UX 개선+내 찜 동선">
-<title>남대문 아동복 2시 쇼핑 가이드 (남아·여아)</title>
+<meta name="build" content="2026-11-07 · 링크 미리보기 이미지(og)+매장 인스타 링크 10곳+이동 수단+사진 구조+네이버지도 링크+걷는 캐릭터">
+<meta name="description" content="남대문 아동복 상가를 돌 때 쓰는 모바일 가이드. 매장 카드로 고르고, 찜한 매장으로 내 동선을 만들어 보세요.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="남대문 아동복 쇼핑 가이드">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="남대문 아동복 쇼핑 가이드 (남아·여아)">
+<meta property="og:description" content="매장 카드로 고르고, 찜한 매장으로 내 동선을 만들어 보세요.">
+<meta property="og:url" content="https://aquamarine-anchor-mu.vercel.app/">
+<meta property="og:image" content="https://aquamarine-anchor-mu.vercel.app/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="남대문 아동복 쇼핑 가이드 — 가방 캐릭터가 카드 위에 서 있는 그림">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="남대문 아동복 쇼핑 가이드 (남아·여아)">
+<meta name="twitter:description" content="매장 카드로 고르고, 찜한 매장으로 내 동선을 만들어 보세요.">
+<meta name="twitter:image" content="https://aquamarine-anchor-mu.vercel.app/og.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Cpath d=%22M14 14c0-8 12-8 12 0%22 fill=%22none%22 stroke=%22%2317151F%22 stroke-width=%223%22 stroke-linecap=%22round%22/%3E%3Crect x=%225%22 y=%2213%22 width=%2230%22 height=%2222%22 rx=%229%22 fill=%22%236C4FE0%22 stroke=%22%2317151F%22 stroke-width=%222.6%22/%3E%3Ccircle cx=%2215%22 cy=%2223%22 r=%222.4%22 fill=%22%2317151F%22/%3E%3Ccircle cx=%2225%22 cy=%2223%22 r=%222.4%22 fill=%22%2317151F%22/%3E%3Cpath d=%22M17 28.5q3 2.8 6 0%22 fill=%22none%22 stroke=%22%2317151F%22 stroke-width=%222.2%22 stroke-linecap=%22round%22/%3E%3C/svg%3E">
+<title>남대문 아동복 쇼핑 가이드 (남아·여아)</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -291,6 +308,35 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 .st .d{font-size:14px;color:#3A3649;margin-top:2px;line-height:1.45}
 .st .sz{display:inline-block;margin-top:4px;font-size:12px;font-weight:700;color:var(--acc-d)}
 .st.flash{animation:flash 1.6s}
+/* 매장 사진 3장 · 인스타 링크 (사진은 직접 촬영/허락받은 것만, 인스타는 링크로만) */
+.mx-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mx-ph{padding:0;border:0;background:var(--paper);border-radius:14px;box-shadow:inset 0 0 0 2px var(--ink);overflow:hidden;aspect-ratio:1;display:block;cursor:pointer}
+.mx-ph img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;user-select:none}
+.mx-ph:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.mx-ig{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink);color:var(--ink);font-weight:800;font-size:13px;text-decoration:none}
+.mx-ig svg,.mx-igi svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.mx-igi{width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink);color:var(--ink);display:grid;place-items:center;text-decoration:none}
+.cbody .bdg{align-items:center}
+.cbody .mx-ig{height:30px}
+@media(max-width:360px){.cbody .mx-ig{padding:0 11px}.cbody .mx-ig span{display:none}}
+@media(max-height:700px){.cbody{gap:5px}.cbody p{font-size:15px;line-height:1.38}.cbody h3{font-size:27px}}
+.cb.mxh{padding:0;background:var(--bc)}
+.cb.mxh .mx-strip{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.cb.mxh .mx-ph{border-radius:0;box-shadow:none;aspect-ratio:auto;height:100%;width:100%;background:var(--paper)}
+.cb.mxh .mx-chip{position:absolute;left:10px;top:10px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:rgba(255,251,241,.95);border-radius:999px;padding:3px 11px 3px 8px;font-weight:800;font-size:12.5px;box-shadow:inset 0 0 0 1.5px var(--ink);pointer-events:none}
+.cb.mxh .mx-chip i{width:10px;height:10px;border-radius:50%;background:var(--bc);display:inline-block}
+.cb.mxh .tm{z-index:2}
+.st .acts{display:flex;flex-direction:column;align-items:center;gap:6px}
+.st .mx-strip{display:flex;gap:6px;margin-top:8px}
+.st .mx-ph{width:46px;height:46px;border-radius:10px;aspect-ratio:auto}
+.pv .pvimg{background:var(--ink);border-radius:20px;overflow:hidden;touch-action:pan-y;margin-top:10px;min-height:120px}
+.pv .pvimg img{display:block;width:100%;max-height:60vh;object-fit:contain;margin:0 auto;-webkit-user-drag:none;user-select:none}
+.pv .dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.pv .dots i{width:8px;height:8px;border-radius:50%;background:rgba(23,21,31,.25)}
+.pv .dots i.on{background:var(--ink)}
+.pv .cr{font-size:12px;color:var(--ink2);margin-top:8px;text-align:center}
+.pv .pvbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.pv .pvbar .btn{height:40px;font-size:14px;padding:0 16px}
 @keyframes flash{0%,60%{background:var(--yel)}}
 .heart{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:inset 0 0 0 1.5px var(--hair);transition:transform .2s,background .2s}
 .heart svg{width:21px;height:21px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
@@ -600,13 +646,14 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 <section class="screen" id="s-info" data-s="info" aria-label="정보">
   <div class="sh"><div><h2 class="h2">알아두면 좋은 것</h2><p class="sub">필요한 것만 골라서 봐요</p></div></div>
   <div class="sub-seg" id="subSeg" role="tablist">
-    <button class="on" data-p="core">핵심</button><button data-p="park">주차</button><button data-p="tips">후기</button><button data-p="prep">준비</button>
+    <button class="on" data-p="core">핵심</button><button data-p="park" id="parkTab">주차</button><button data-p="tips">후기</button><button data-p="prep">준비</button>
   </div>
   <div id="p-core"></div>
   <div id="p-park" hidden></div>
   <div id="p-tips" hidden></div>
   <div id="p-prep" hidden></div>
-  <p class="foot">참고: Notion 「남대문 아동복 쇼핑 통합 가이드 | 건물별 지도·매장 by베리맘」, Instagram @sosoeun · @baby.shine2025 릴스, 디자인 영감: Pinterest 'Worly Mobile App' 레이아웃 컨셉.<br>원문 작성자가 무단 복제·사용 금지를 밝힌 자료라, 이 문서는 개인 참고용으로만 재구성했어요. 외부 공유는 하지 말아주세요.</p>
+  <p class="foot" id="mxNote" hidden></p>
+  <p class="foot">참고: Notion 「남대문 아동복 쇼핑 통합 가이드 | 건물별 지도·매장 by베리맘」, Instagram @sosoeun · @baby.shine2025 릴스, 디자인 영감: Pinterest 'Worly Mobile App' 레이아웃 컨셉, 매장 인스타 계정 정보: Notion 「홀리맘 추천 남대문 아기옷 쇼핑 총정리」(홀리파파).<br>원문 작성자가 무단 복제·사용 금지를 밝힌 자료라, 이 문서는 개인 참고용으로만 재구성했어요. 외부 공유는 하지 말아주세요.</p>
 </section>
 
 </main>
@@ -792,6 +839,34 @@ const ADDR={
   6:{t:"남창동 31-5 · 마마 상가",nq:"서울 중구 남창동 31-5",v:1,link:"https://naver.me/xMjtU1Yg"},
   7:{t:"남대문시장8길 7 · 삼익패션타운",nq:"서울 중구 남대문시장8길 7",v:1,link:"https://naver.me/5iTVSaZE"}
 };
+/* ===== 매장 사진 · 인스타 링크 (법적으로 안전한 선) =====
+   · 인스타그램의 이미지는 가져오지 않는다. 인스타는 링크(ig)로만 연결한다(임베드 스크립트도 쓰지 않음).
+   · photos: 직접 촬영했거나 사용 허락을 받은 사진만. 이 앱의 img/ 폴더 파일만 허용하고, credit(출처)과 alt(설명)는 필수.
+   · 사진에 사람(특히 아이) 얼굴이 나오지 않게 하고, 위치정보(EXIF)는 tools/make_photos.py 로 지운다.
+   · 위 조건을 어기는 항목은 화면에 나오지 않고, 점검(테스트)도 실패한다. 자세한 규칙은 MEDIA_GUIDE.md
+   예) "CHIP":{ig:"https://www.instagram.com/reel/XXXX/",photos:[{src:"img/chip-1.webp",alt:"CHIP 진열대",credit:"직접 촬영"}]} */
+const MEDIA={
+  /* 인스타 계정 링크 10곳 — 계정 정보 출처: Notion 「홀리맘 추천 남대문 아기옷 쇼핑 총정리」(홀리파파).
+     층·호수와 이름이 앱의 매장과 일치하는 곳만 연결했고, 링크만 사용(사진·글은 가져오지 않음). 계정이 맞는지 인스타에서 한 번 확인해 주세요. */
+  "피피":{ig:"https://www.instagram.com/pipi_official__/"},
+  "CHIP":{ig:"https://www.instagram.com/chip._.hi/"},
+  "콘 CON":{ig:"https://www.instagram.com/con_mnm/"},
+  "파이":{ig:"https://www.instagram.com/pie_official__/"},
+  "멜멜":{ig:"https://www.instagram.com/melmel.kr/"},
+  "아오스타":{ig:"https://www.instagram.com/aosta_atelier/"},
+  "브로디제인":{ig:"https://www.instagram.com/brodyjane_official/"},
+  "로제트 Rosette":{ig:"https://www.instagram.com/rosette_kids/"},
+  "페퍼 PEPPER":{ig:"https://www.instagram.com/pepper_wholesale/"},
+  "고유":{ig:"https://www.instagram.com/goukids/"}
+};
+const MEDIA_CONTACT="";   // 삭제 요청을 받을 연락처(메일/링크). 비워 두면 문구만 표시
+const escH=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const IG_OK=u=>typeof u==="string"&&/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9_.\-\/]+\/?(\?[A-Za-z0-9_.\-=&%]*)?$/.test(u);
+const PH_OK=p=>!!p&&typeof p.src==="string"&&/^img\/[A-Za-z0-9_\-\/]+\.(webp|jpg|jpeg|png)$/.test(p.src)&&typeof p.credit==="string"&&!!p.credit.trim()&&typeof p.alt==="string"&&!!p.alt.trim();
+const mediaOf=x=>{const m=MEDIA[x.b];if(!m)return null;const ph=(Array.isArray(m.photos)?m.photos:[]).filter(PH_OK).slice(0,3),ig=IG_OK(m.ig)?m.ig:"";return ph.length||ig?{ph,ig}:null};
+const mxStrip=(x,cls)=>{const m=mediaOf(x);return m&&m.ph.length?`<div class="${cls}">${m.ph.map((p,i)=>`<button class="mx-ph" data-photo="${x.id}" data-i="${i}" aria-label="${escH(x.b)} 사진 ${i+1} 크게 보기"><img src="${escH(p.src)}" alt="" loading="lazy" decoding="async" draggable="false" onerror="phErr(this)"></button>`).join("")}</div>`:""};
+const mxIg=(x,kind)=>{const m=mediaOf(x);if(!m||!m.ig)return "";return kind==="pill"?`<a class="mx-ig" href="${escH(m.ig)}" target="_blank" rel="noopener noreferrer" aria-label="${escH(x.b)} 인스타에서 보기">${IC.ig}<span>인스타에서 보기</span></a>`:`<a class="mx-igi" href="${escH(m.ig)}" target="_blank" rel="noopener noreferrer" aria-label="${escH(x.b)} 인스타에서 보기">${IC.ig}</a>`};
+function phErr(img){const b=img.closest(".mx-ph");if(!b)return;const st=b.parentElement;b.remove();if(st&&!st.querySelector(".mx-ph"))st.remove()}
 const mapUrl=A=>A.link||"https://map.naver.com/p/search/"+encodeURIComponent(A.nq);
 const pad=n=>String(n).padStart(2,"0");
 /* 일정: 요일(평일/토요일) · 출발 시간(분) */
@@ -825,7 +900,8 @@ const IC={
   plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   spark:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c1 6 6 11 12 12-6 1-11 6-12 12-1-6-6-11-12-12C6 11 11 6 12 0z"/></svg>',
   heart:'<svg viewBox="0 0 24 24"><path d="M12 20.5s-7-4.3-9-8.6C1.6 8.7 3.6 5 7 5c2 0 3.4 1.1 5 2.8C13.6 6.1 15 5 17 5c3.4 0 5.4 3.7 4 6.9-2 4.3-9 8.6-9 8.6z"/></svg>',
-  pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>'
+  pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  ig:'<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8"/></svg>'
 };
 const MINI='<svg class="mini" viewBox="0 0 40 40" aria-hidden="true"><path d="M14 14c0-8 12-8 12 0" fill="none" stroke="#17151F" stroke-width="3" stroke-linecap="round"/><rect x="5" y="13" width="30" height="22" rx="9" fill="#FFFBF1" stroke="#17151F" stroke-width="2.6"/><circle cx="15" cy="23" r="2.4" fill="#17151F"/><circle cx="25" cy="23" r="2.4" fill="#17151F"/><path d="M17 28.5q3 2.8 6 0" fill="none" stroke="#17151F" stroke-width="2.2" stroke-linecap="round"/></svg>';
 
@@ -841,6 +917,8 @@ const state={
 if(state.mode!=="b"&&state.mode!=="g")state.mode="b";
 state.day=(()=>{const q=new URLSearchParams(location.search).get("d");if(q==="sat"||q==="wk")return q;const v=store.get("nm2.day",null);if(v==="sat"||v==="wk")return v;return kstDate().getUTCDay()===6?"sat":"wk"})();
 state.plan=(v=>v==="mine"||v==="guide"?v:null)(store.get("nm2.plan",null));
+/* 이동 수단: sub(지하철, 기본) | car(자동차). 주소의 ?go=car|sub 로도 지정 가능 */
+state.go=(()=>{const q=new URLSearchParams(location.search).get("go");if(q==="sub"||q==="car")return q;return store.get("nm2.go",null)==="car"?"car":"sub"})();
 state.start=(v=>v!=null&&Number.isFinite(+v)&&+v>=TMIN&&+v%TSTEP===0?Math.min(+v,tmaxOf(state.day)):recOf(state.day))(store.get("nm2.start",null));
 const save=()=>{store.set("nm2.wish",[...state.wish]);store.set("nm2.seen",state.seen);store.set("nm2.done",[...state.done]);store.set("nm2.prep",[...state.prep]);};
 const visible=s=>s.g==="u"||s.g===state.mode;
@@ -879,11 +957,15 @@ function schedFor(start,mode,day=state.day){
   out.push({...raw[raw.length-1]});
   const endP=Math.min(E,cur);
   const sp=arrText(start,day,endP);
-  return {list:[{...START[0],t:hm(start-30),p:sp,start:1},...out],drop:all.filter(o=>!kept.includes(o)).map(o=>o.x),n:kept.length,end:endP,span:endP-start,full};
+  return {list:[startItem(start,day,endP),...out],drop:all.filter(o=>!kept.includes(o)).map(o=>o.x),n:kept.length,end:endP,span:endP-start,full};
 }
 /* ---------- 내 찜 코스: 찜한 매장만 상가 지리 순서(1→7)로 이어서 계산 ----------
    소요시간 가정: 상가 이동 5분 + 매장당 8분 (최소 15분, 5분 단위 올림). 체감과 다르면 MINE 값만 조정 */
 const MINE={arrive:5,per:8,min:15};
+const GOL={sub:"지하철",car:"자동차"};
+const LEAD=g=>(g||state.go)==="car"?30:10;          // 첫 상가 출발보다 먼저 도착하는 시간(분): 차는 주차 때문에 30, 지하철은 출구 바로 앞이라 10
+const ARRIVE_SUB={h:"회현역 도착",p:"4호선 회현역 <b>6번 출구</b>로 나오면 씨티아이(01)가 바로 앞이에요. 다른 상가 위치는 지도 탭에서 확인하세요."};
+const startItem=(start,day,endP)=>state.go==="car"?{...START[0],t:hm(start-30),p:arrText(start,day,endP),start:1,k0:START[0].h}:{...START[0],...ARRIVE_SUB,t:hm(start-10),start:1,k0:START[0].h};
 const arrText=(start,day,endP)=>day==="sat"?START[0].p.replace("평일 6시간권 17,000원","주차권"):endP-(start-30)>180?START[0].p:START[0].p.replace("평일 6시간권 17,000원","평일 3시간권(13,000원) 또는 6시간권(17,000원)");
 const wishedVisible=()=>[...state.wish].map(id=>S[id]).filter(x=>x&&visible(x));
 const planKind=()=>wishedVisible().length&&state.plan!=="guide"?"mine":"guide";
@@ -903,15 +985,15 @@ function schedMine(start,mode,day=state.day){
   let cur=start;const out=[];
   kept.forEach(o=>{const y={h:stopLabel(o.n),t:hm(cur),mine:1,stores:o.st,dur:o.dur,k:o.n};if(cur+o.dur>E)y.tight=1;out.push(y);cur+=o.dur});
   const endP=Math.min(E,cur);
-  return {mine:1,list:[{...START[0],t:hm(start-30),p:arrText(start,day,endP),start:1},...out],
+  return {mine:1,list:[startItem(start,day,endP),...out],
     drop:all.filter(o=>!kept.includes(o)).map(o=>({h:stopLabel(o.n),stores:o.st,mine:1,k:o.n})),
     n:kept.reduce((a,o)=>a+o.st.length,0),total:wishedVisible().length,nb:kept.length,end:endP,span:endP-start,full};
 }
 const schedPlan=(start,mode,day)=>planKind()==="mine"?schedMine(start,mode,day):schedFor(start,mode,day);
 let _sk="",_sv=null;
-function sched(){const w=wishedVisible().map(q=>q.id).sort((a,b)=>a-b).join(","),k=state.mode+"|"+state.start+"|"+state.day+"|"+planKind()+"|"+w;if(k!==_sk){_sk=k;_sv=schedPlan(state.start,state.mode,state.day)}return _sv}
+function sched(){const w=wishedVisible().map(q=>q.id).sort((a,b)=>a-b).join(","),k=state.mode+"|"+state.start+"|"+state.day+"|"+state.go+"|"+planKind()+"|"+w;if(k!==_sk){_sk=k;_sv=schedPlan(state.start,state.mode,state.day)}return _sv}
 const items=()=>sched().list;
-const kOf=x=>state.mode+"|"+x.h;
+const kOf=x=>state.mode+"|"+(x.k0||x.h);
 const tOf=k=>{const x=items().find(i=>!i.end&&!i.start&&bOf(i.h)===k);return x?x.t:""};
 const dropK=k=>sched().drop.some(x=>bOf(x.h)===k);
 const tLab=(k,gl)=>tOf(k)||(dropK(k)?"시간 부족":sched().mine?"찜 없음":gl);
@@ -930,7 +1012,7 @@ function progress(){
 }
 function stage(){
   const m=nowSec()/60, list=items().filter(x=>!x.end);
-  if(m<state.start-30)return {ph:"before",curK:null};
+  if(m<state.start-LEAD())return {ph:"before",curK:null};
   if(m>=endOf())return {ph:"after",curK:null};
   let cur=list[0];for(const x of list){if(toMin(x.t)<=m)cur=x;}
   return {ph:"during",curK:kOf(cur)};
@@ -944,7 +1026,7 @@ function nextTarget(){
 }
 function cdInfo(){
   const s=nowSec(),st=state.start*60,en=endOf()*60;
-  if(s<st)return {lab:hlab(state.start)+" 스타트까지",sec:st-s,sub:hm(state.start-30)+" 도착 · 주차 먼저"};
+  if(s<st)return {lab:hlab(state.start)+" 스타트까지",sec:st-s,sub:state.go==="car"?hm(state.start-30)+" 도착 · 주차 먼저":hm(state.start-10)+" 회현역 6번 출구 도착"};
   if(s<en)return {lab:(endOf()/60-12)+"시 마감까지",sec:en-s,sub:"남은 시간 안에 찜한 곳부터"};
   return {lab:"오늘 영업",txt:"마감",sub:DAYL[state.day]+" 09:30–"+hm(endOf())};
 }
@@ -976,7 +1058,7 @@ function countUp(root){
 
 /* ================= mascot ================= */
 const QUIPS_BASE=["현금 챙겼지?","주차권은 입차 전에 결제!","타포린백 2개면 든든해","콘은 14~16시 프리입장이야","아이 키·몸무게 메모 확인!","입던 옷 1벌 대보면 실패 없어"];
-const quips=()=>[...QUIPS_BASE.filter(q=>!(state.day==="sat"&&q.includes("콘은"))),...(SEAS.c.quips||[])];
+const quips=()=>[...QUIPS_BASE.filter(q=>!(state.day==="sat"&&q.includes("콘은"))&&!(state.go!=="car"&&q.includes("주차"))),...(SEAS.c.quips||[])];
 let sayT,qi=0;
 function say(msg){const s=$("#say");if(!s)return;s.textContent=msg;try{WK.place()}catch(e){}s.classList.add("on");clearTimeout(sayT);sayT=setTimeout(()=>s.classList.remove("on"),2600)}
 function greet(){
@@ -1083,7 +1165,7 @@ function renderHome(){
   $("#facts").innerHTML=[
     ["t-ink","영업시간","09:30–"+hm(endOf()),state.day==="sat"?"평일은 17:00 마감":"토요일은 16:00 조기 마감"],
     ["t-lime","콘 프리입장","14–16시",state.day==="sat"?"평일 기준 · 토요일은 확인 필요":"번호표 없이 바로 입장"],
-    ["t-sky",...parkTile()],
+    state.go==="car"?["t-sky",...parkTile()]:["t-sky","지하철","회현역","4호선 6번 출구 → 씨티아이 바로 앞"],
     ["t-pink","결제 · 짐","현금+타포린백","많이 사면 할인 요청도"],
     ["t-yel","쇼핑 중 식사","0분","간식·저녁은 선택 사항"]
   ].map(f=>`<div class="fact ${f[0]}"><small>${f[1]}</small><b>${f[2]}</b><span>${f[3]}</span></div>`).join("");
@@ -1100,7 +1182,7 @@ function renderNext(){
   if(!n){
     const w=[...state.wish].filter(id=>S[id]&&visible(S[id])).length;
     el.style.setProperty("--bc",BC[3]);
-    el.innerHTML=`<span class="lab">DONE</span><h3>${stage().ph==="after"?"오늘 쇼핑은 마감!":"동선을 다 돌았어요"}</h3><p>찜한 매장 ${w}곳을 다시 확인해보세요. 주차 할인 영수증도 잊지 말고요.</p><div class="row"><button class="btn pri" data-sheet="wish">찜 목록</button><button class="btn sec" data-go="plan">동선 보기</button></div>`;
+    el.innerHTML=`<span class="lab">DONE</span><h3>${stage().ph==="after"?"오늘 쇼핑은 마감!":"동선을 다 돌았어요"}</h3><p>찜한 매장 ${w}곳을 다시 확인해보세요.${state.go==="car"?" 주차 할인 영수증도 잊지 말고요.":""}</p><div class="row"><button class="btn pri" data-sheet="wish">찜 목록</button><button class="btn sec" data-go="plan">동선 보기</button></div>`;
     return;
   }
   const x=n.x,b=bOf(x.h);
@@ -1113,7 +1195,7 @@ function renderNext(){
   el.style.setProperty("--bc",BC[b]||BC[1]);
   el.innerHTML=`<span class="lab">${n.lab} · ${x.t}</span><h3>${x.h}</h3><p>${x.p}</p>
     ${x.c?`<div class="chips">${x.c.map(c=>`<span class="chip acc">${c}</span>`).join("")}</div>`:""}
-    <div class="row"><button class="btn pri" data-done="${kOf(x)}">${IC.check}도착 체크</button>${b?`<button class="btn sec" data-bld="${b}">매장 보기</button>`:`<button class="btn sec" data-go="info" data-p="park">주차 정보</button>`}</div>`;
+    <div class="row"><button class="btn pri" data-done="${kOf(x)}">${IC.check}도착 체크</button>${b?`<button class="btn sec" data-bld="${b}">매장 보기</button>`:(state.go==="car"?`<button class="btn sec" data-go="info" data-p="park">주차 정보</button>`:`<button class="btn sec" data-bld="1">씨티아이 위치</button>`)}</div>`;
 }
 
 /* ================= CARDS: deck ================= */
@@ -1130,13 +1212,13 @@ function renderDeckChips(){
   $("#bChips").innerHTML=h;
 }
 function cardHTML(s,i){
-  const B=BLD[s.n],time=tOf(s.n);
+  const B=BLD[s.n],time=tOf(s.n),mm=mediaOf(s),hero=!!(mm&&mm.ph.length);
   const bd=[isPick(s)?'<span class="badge pk">Pick</span>':"",s.g!=="u"?`<span class="badge only">${s.g==="b"?"남아":"여아"} 전문</span>`:"",...s.t.map(t=>BADGE[t])].join("");
   const wished=state.wish.has(s.id);
   return `<div class="dcard ${i===0?"cur0":"l"+i}${wished?" wished":""}" data-id="${s.id}">
     <span class="stamp k">찜!</span><span class="stamp s">PASS</span>${wished?`<span class="wishtag">${IC.heart}찜한 매장</span>`:""}
-    <div class="cb" style="--bc:${BC[s.n]}"><span class="dots"></span><span class="no">${pad(s.n)}</span><span class="bn">${B.name}<span>${B.floor}</span></span><span class="tm ${time?"":"skip"}">${time||tLab(s.n,"생략 상가")}</span></div>
-    <div class="cbody"><h3>${s.b}</h3><span class="unit">${s.u}</span><p>${s.d}</p>${(state.mode==="g"&&s.sz)?`<span class="sz">원문 구매 ${s.sz} · 85cm 기준</span>`:""}<div class="bdg">${bd}</div></div>
+    <div class="cb${hero?" mxh":""}" style="--bc:${BC[s.n]}">${hero?`${mxStrip(s,"mx-strip")}<span class="mx-chip"><i></i>${pad(s.n)} ${B.name.split(" ")[0]}</span>`:`<span class="dots"></span><span class="no">${pad(s.n)}</span><span class="bn">${B.name}<span>${B.floor}</span></span>`}<span class="tm ${time?"":"skip"}">${time||tLab(s.n,"생략 상가")}</span></div>
+    <div class="cbody"><h3>${s.b}</h3><span class="unit">${s.u}</span><p>${s.d}</p>${(state.mode==="g"&&s.sz)?`<span class="sz">원문 구매 ${s.sz} · 85cm 기준</span>`:""}<div class="bdg">${bd}${mxIg(s,"pill")}</div></div>
   </div>`;
 }
 function renderDeck(enter){
@@ -1178,15 +1260,15 @@ function undo(){
 }
 function bindDrag(){
   const c=$("#stage .dcard.cur0");if(!c)return;
-  let sx=0,sy=0,dx=0,dy=0,on=false,t0=0;
+  let sx=0,sy=0,dx=0,dy=0,on=false,t0=0,tapEl=null;
   const ks=c.querySelector(".stamp.k"),ss=c.querySelector(".stamp.s");
-  c.addEventListener("pointerdown",e=>{if(busy||e.button>0)return;on=true;sx=e.clientX;sy=e.clientY;dx=dy=0;t0=performance.now();try{c.setPointerCapture(e.pointerId)}catch(_){};c.classList.add("drag")});
+  c.addEventListener("pointerdown",e=>{if(busy||e.button>0||e.target.closest("a"))return;tapEl=e.target.closest(".mx-ph");on=true;sx=e.clientX;sy=e.clientY;dx=dy=0;t0=performance.now();try{c.setPointerCapture(e.pointerId)}catch(_){};c.classList.add("drag")});
   c.addEventListener("pointermove",e=>{if(!on)return;dx=e.clientX-sx;dy=e.clientY-sy;
     c.style.transform=`translate(${dx}px,${dy*.2}px) rotate(${dx/16}deg)`;
     ks.style.opacity=Math.max(0,Math.min(1,dx/90));ss.style.opacity=Math.max(0,Math.min(1,-dx/90))});
   const end=()=>{if(!on)return;on=false;const v=Math.abs(dx)/Math.max(1,performance.now()-t0);
     if(Math.abs(dx)>90||(Math.abs(dx)>40&&v>.6))decide(dx>0?"k":"s");
-    else{c.classList.remove("drag");c.style.transform="";ks.style.opacity=ss.style.opacity=0}};
+    else{c.classList.remove("drag");c.style.transform="";ks.style.opacity=ss.style.opacity=0;if(tapEl&&Math.abs(dx)<10&&Math.abs(dy)<10)openSheet("photo",{id:+tapEl.dataset.photo,i:+tapEl.dataset.i})}tapEl=null};
   c.addEventListener("pointerup",end);c.addEventListener("pointercancel",end);
 }
 $("#bSkip").addEventListener("click",()=>decide("s"));
@@ -1194,6 +1276,7 @@ $("#bKnow").addEventListener("click",()=>decide("k"));
 $("#bUndo").addEventListener("click",undo);
 addEventListener("keydown",e=>{
   if(e.key==="Escape")closeSheet();
+  if(sheetKind==="photo"&&(e.key==="ArrowRight"||e.key==="ArrowLeft")){sheetArg.i+=e.key==="ArrowRight"?1:-1;renderSheet();return}
   if(state.tab!=="cards"||state.view!=="deck"||$("#sheetWrap").classList.contains("on")||e.target.tagName==="INPUT")return;
   if(e.key==="ArrowRight")decide("k");else if(e.key==="ArrowLeft")decide("s");
 });
@@ -1203,8 +1286,8 @@ function storeRow(s){
   return `<div class="st ${isPick(s)?"pick":""}" id="st-${s.id}">
     <div class="u">${s.u}</div>
     <div><div class="b">${s.b}${isPick(s)?'<span class="badge pk">Pick</span>':""}${s.g!=="u"?`<span class="badge only">${s.g==="b"?"남아":"여아"} 전문</span>`:""}${s.t.map(t=>BADGE[t]).join("")}</div>
-      <div class="d">${s.d}</div>${(state.mode==="g"&&s.sz)?`<span class="sz">원문 구매 ${s.sz} · 85cm 기준</span>`:""}</div>
-    <button class="heart ${state.wish.has(s.id)?"on":""}" data-id="${s.id}" aria-label="${s.b} 찜하기" aria-pressed="${state.wish.has(s.id)}">${IC.heart}</button>
+      <div class="d">${s.d}</div>${(state.mode==="g"&&s.sz)?`<span class="sz">원문 구매 ${s.sz} · 85cm 기준</span>`:""}${mxStrip(s,"mx-strip")}</div>
+    <div class="acts"><button class="heart ${state.wish.has(s.id)?"on":""}" data-id="${s.id}" aria-label="${s.b} 찜하기" aria-pressed="${state.wish.has(s.id)}">${IC.heart}</button>${mxIg(s,"icon")}</div>
   </div>`;
 }
 function bldBlock(k,list,extra){
@@ -1339,7 +1422,8 @@ function renderPlan(){
 
 /* ================= INFO ================= */
 function renderInfo(){
-  const m=state.mode,sc=SEAS.c,st=live(sc.stock),sat=state.day==="sat",pt=parkTile();
+  const m=state.mode,sc=SEAS.c,st=live(sc.stock),sat=state.day==="sat",car=state.go==="car",pt=car?parkTile():["지하철","회현역","4호선 6번 출구 → 씨티아이 바로 앞"];
+  {const pt0=$("#parkTab");if(pt0)pt0.textContent=car?"주차":"교통";}
   const tips=sc.tips||[];
   const pts=[...(st?[{h:st.h,p:st.p}]:[]),...tips,...GENERAL_POINTS.filter(g=>!tips.some(t=>t.k===g.k))];
   const col=(sc.color||{})[m];
@@ -1348,7 +1432,7 @@ function renderInfo(){
   $("#p-core").innerHTML=`<div class="bento">
     <div class="bt t-ink"><span class="k">${DAYL[state.day]} 주간 소매</span><div><div class="v">09:30–${hm(endOf())}</div><div class="s">${sat?"평일은 17:00 마감":"토요일 16:00 조기 마감"}</div></div></div>
     <div class="bt t-lime"><span class="k">콘(CON) 프리입장</span><div><div class="v">14–16시</div><div class="s">${sat?"평일 기준 · 토요일은 확인 필요":"번호표 없이 바로 입장"}</div></div></div>
-    <div class="bt t-sky"><span class="k">${pt[0]}</span><div><div class="v${sat?" kr":""}">${pt[1]}</div><div class="s">${pt[2]}</div></div></div>
+    <div class="bt t-sky"><span class="k">${pt[0]}</span><div><div class="v${sat||!car?" kr":""}">${pt[1]}</div><div class="s">${pt[2]}</div></div></div>
     <div class="bt t-pink"><span class="k">결제 · 짐</span><div><div class="v kr">현금 + 타포린백</div><div class="s">많이 사면 할인 요청도 가능</div></div></div>
     <div class="bt w t-yel"><span class="k">${SEAS.item} 쇼핑 포인트</span><ul>${pts.map(t=>`<li><b>${t.h}</b> — ${t.p}</li>`).join("")}</ul></div>
     <div class="bt w t-mint"><span class="k">아이 없이 가니까 · 사이즈 실패 방지</span><div class="s">입혀볼 수 없으니 <b>지금 딱 맞는 상의·하의 1벌씩</b> 챙겨서 매장 옷 위에 겹쳐 대보세요. 아이 <b>키·몸무게, 상의 총장·바지 길이·허리</b>를 미리 재서 메모해두면 사장님께 묻기도 쉬워요. 애매하면 한 치수 크게, 계산 전엔 <b>교환·환불 가능 여부</b>를 꼭 확인하세요.</div></div>
@@ -1356,12 +1440,15 @@ function renderInfo(){
     <div class="bt w" style="background:var(--paper)"><span class="k">쇼핑 중 식사 시간 0분</span><div class="s">${rangeL(state.start,sched().end)}엔 앉아서 먹을 틈이 없어요. 간식(야채호떡)과 저녁(갈치골목)은 <b>원하면 추가하는 선택 사항</b>이라 동선 탭 아래에 따로 뒀어요.</div></div>
   </div>`;
   const priceHTML=sat?`<p style="margin-top:12px"><b>토요일 요금은 모두의주차장 앱에서 확인하세요.</b> 평일은 3시간 ₩13,000 · 6시간 ₩17,000이에요.</p>`:`<div class="price"><div><small>평일 3시간권</small><b>₩13,000</b></div><div${shortStay()?"":` class="rec"`}><small>평일 6시간권</small><b>₩17,000</b>${shortStay()?"":"<em>추천</em>"}</div></div>`;
-  $("#p-park").innerHTML=`
+  const carHTML=`
     <div class="card"><h4>① 어반포트 회현역 AK타워</h4><p>씨티아이 바로 앞이라 동선이 가장 짧아요. 모두의주차장 앱 기준.</p>
       ${priceHTML}
       <p style="margin-top:12px">${parkNote()}<b>입차 후 구매하면 적용이 안 돼요.</b></p></div>
     <div class="card"><h4>② 신세계백화점 본점 · 무료주차 우선</h4><p>앱 회원가입 → 이번 달 무료주차권 발급 → 차량 등록 → 출차 전 쿠폰 적용. 발급 조건은 회원·점포·기간에 따라 달라질 수 있어요.</p>
       <div class="receipt"><span>5만원 이상<b>1시간</b></span><span>10만원 이상<b>2시간</b></span><span>15만원 이상<b>3시간</b></span></div></div>`;
+  const subHTML=`<div class="card"><h4>4호선 회현역 6번 출구</h4><p>6번 출구로 나오면 첫 상가인 씨티아이(01)가 바로 앞이라 출구에서 바로 쇼핑을 시작할 수 있어요. 다른 상가 위치는 지도 탭이나 상가별 <b>네이버지도 열기</b>로 확인하세요.</p><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn sec" data-bld="1">씨티아이 위치</button><button class="btn sec" data-go="map">상가 지도</button></div></div>
+    <div class="card"><h4>짐이 많아질 때</h4><p>전철로 오면 산 옷을 계속 들고 다녀야 해요. 큰 타포린백 2개를 챙기고, 부피가 큰 옷은 동선 마지막 상가에서 사면 편해요.</p></div>`;
+  $("#p-park").innerHTML=car?`<h3 class="h3" style="margin-top:4px">차로 갈 때</h3>${carHTML}<h3 class="h3">지하철로 갈 때</h3>${subHTML}`:`<h3 class="h3" style="margin-top:4px">지하철로 갈 때</h3>${subHTML}<h3 class="h3">차로 갈 때</h3>${carHTML}`;
   const sk=st&&st.card,stockCard=sk?`<article class="card"><div class="who"><div class="av" style="--bc:var(--lime)"></div><div><b>${sk.who}</b><small>${sk.tags}</small></div></div><h4>${sk.h}</h4><p>${sk.p}</p><div class="chips" style="margin-top:10px">${(sk.chips||[]).map(x=>`<span class="chip acc">${x}</span>`).join("")}${sk.opt?`<span class="chip opt">${sk.opt}</span>`:""}</div></article>`:"";
   $("#p-tips").innerHTML=(m==="b"?`
     <article class="card"><div class="who"><div class="av" style="--bc:var(--sky)"></div><div><b>@sosoeun</b><small>#남대문아동복 #아들룩</small></div></div>
@@ -1373,7 +1460,7 @@ function renderInfo(){
     ${stockCard}
     <article class="card"><div class="who"><div class="av" style="--bc:var(--yel)"></div><div><b>부모님 옷도 한 번에</b><small>서울 중구 남대문시장길 29</small></div></div>
       <h4>해남양행 잠옷</h4><p>잠옷이 예쁘고 저렴하다는 후기. 입구 말고 매장 제일 안쪽까지 들어가야 상하의 세트·원피스가 많아요. <a href="https://naver.me/FEgcg4Pa" target="_blank" rel="noopener">네이버지도</a></p></article>`;
-  const PREP=[...(sc.prep&&sc.prep.length?sc.prep:["브랜드별로 원하는 상품을 미리 검색해서 캡처"]),"아이 키·몸무게와 잘 맞는 옷의 총장·바지 길이·허리를 재서 메모","캡처에 브랜드명·원하는 사이즈를 같이 메모","지금 잘 맞는 상의·하의 1벌씩 챙기기","큰 타포린백 2개, 현금 챙기기","주차권은 입차 전에 앱에서 결제"];
+  const PREP=[...(sc.prep&&sc.prep.length?sc.prep:["브랜드별로 원하는 상품을 미리 검색해서 캡처"]),"아이 키·몸무게와 잘 맞는 옷의 총장·바지 길이·허리를 재서 메모","캡처에 브랜드명·원하는 사이즈를 같이 메모","지금 잘 맞는 상의·하의 1벌씩 챙기기","큰 타포린백 2개, 현금 챙기기",...(car?["주차권은 입차 전에 앱에서 결제"]:["교통카드 잔액 확인"])];
   const pd=PREP.filter(t=>state.prep.has(t)).length;
   $("#p-prep").innerHTML=`<div class="dprog" style="margin:0 2px 12px"><div class="bar"><i style="width:${pd/PREP.length*100}%"></i></div><b>${pd}/${PREP.length}</b></div>
     <ul class="prep">${PREP.map(t=>`<li><label><input type="checkbox" data-prep="${t}" ${state.prep.has(t)?"checked":""}><span>${t}</span></label></li>`).join("")}</ul>
@@ -1383,7 +1470,7 @@ document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.
 function setPanel(p){$$("#subSeg button").forEach(b=>b.classList.toggle("on",b.dataset.p===p));["core","park","tips","prep"].forEach(x=>$("#p-"+x).hidden=x!==p)}
 
 /* ================= sheet & wish ================= */
-let sheetKind=null,sheetArg=null,tDraft=BASE,dDraft="wk";
+let sheetKind=null,sheetArg=null,tDraft=BASE,dDraft="wk",gDraft="sub";
 let sheetOpener=null;
 const setBgInert=on=>["main",".top","#tabs"].forEach(q=>{const e=document.querySelector(q);if(e)on?e.setAttribute("inert",""):e.removeAttribute("inert")});
 function openSheet(kind,arg){
@@ -1404,13 +1491,23 @@ function renderSheet(){
 }
 function renderSheetBody(){
   const sh=$("#sheet");
-  sh.setAttribute("aria-label",sheetKind==="time"?"방문 일정 설정":"상세");
+  sh.setAttribute("aria-label",sheetKind==="time"?"방문 일정 설정":sheetKind==="photo"?"매장 사진":"상세");
   if(sheetKind==="bld"){
     const k=sheetArg,l=S.filter(s=>s.n===k&&visible(s)).sort((a,b)=>isPick(b)-isPick(a));
     sh.innerHTML=`<div class="grab"></div><div class="hd"><h3>${pad(k)} ${BLD[k].name}</h3><button class="xbtn" data-close="1">닫기</button></div>
       ${bldBlock(k,l,true)}${l.length?`<button class="wide" data-deck="${k}"><span>이 상가 카드로 고르기</span><span class="ar">${IC.go}</span></button>`:""}`;
+  }else if(sheetKind==="photo"){
+    const x=S[sheetArg.id],m=x&&mediaOf(x);
+    if(!m||!m.ph.length){sh.innerHTML=`<div class="grab"></div><div class="hd"><h3>사진</h3><button class="xbtn" data-close="1">닫기</button></div><p class="sub">사진을 불러올 수 없어요.</p>`;return}
+    const n=m.ph.length,i=((sheetArg.i%n)+n)%n,p=m.ph[i];sheetArg.i=i;
+    sh.innerHTML=`<div class="grab"></div><div class="hd"><h3>${escH(x.b)}</h3><button class="xbtn" data-close="1">닫기</button></div>
+      <div class="pv"><div class="pvimg" id="pvimg"><img src="${escH(p.src)}" alt="${escH(p.alt)}" decoding="async" draggable="false"></div>
+        <div class="dots" aria-hidden="true">${m.ph.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("")}</div>
+        <div class="cr">${i+1} / ${n} · 사진: ${escH(p.credit)}</div>
+        <div class="pvbar"><button class="btn sec" data-pv="-1"${n<2?" disabled":""}>이전</button>${m.ig?`<a class="mx-ig" href="${escH(m.ig)}" target="_blank" rel="noopener noreferrer">${IC.ig}인스타에서 보기</a>`:""}<button class="btn sec" data-pv="1"${n<2?" disabled":""}>다음</button></div></div>`;
+    const im=sh.querySelector("#pvimg img");im.addEventListener("error",()=>{im.replaceWith(Object.assign(document.createElement("p"),{className:"sub",textContent:"사진을 불러올 수 없어요"}))});
   }else if(sheetKind==="time"){
-    const D0=dDraft,S0=tDraft,sat=D0==="sat",E=endOf(D0),r=schedPlan(S0,state.mode,D0),tot=r.mine?r.total:PLAN[state.mode].filter(x=>!x.end).length,need=Math.max(TMIN,r.mine?E-r.full:recOf(D0)),W=E-TMIN,pct=m=>((m-TMIN)/W*100).toFixed(2),rec=recOf(D0),tmax=tmaxOf(D0);
+    const D0=dDraft,S0=tDraft,G0=gDraft,sat=D0==="sat",E=endOf(D0),r=schedPlan(S0,state.mode,D0),tot=r.mine?r.total:PLAN[state.mode].filter(x=>!x.end).length,need=Math.max(TMIN,r.mine?E-r.full:recOf(D0)),W=E-TMIN,pct=m=>((m-TMIN)/W*100).toFixed(2),rec=recOf(D0),tmax=tmaxOf(D0);
     const PRE=[[TMIN,"영업 시작"],[750,"점심 후"],[rec,""],[tmax,"늦게"]];
     const note=S0<BASE?(S0<720?"콘은 오전엔 오픈런(10:30) 번호표가 필요하고 14~16시는 프리입장이에요. 이 시간엔 대기가 있을 수 있어요. 동선은 ":"콘 프리입장은 14~16시예요. 그 전 시간대라 대기가 있을 수 있어요. 동선은 ")+kh(r.end)+"쯤 끝나요."+(sat?" 토요일 콘 운영은 확인이 필요해요.":"")
       :r.n<tot?`마감(${hm(E)}) 안에 ${r.n}곳만 돌 수 있어요. ${r.mine?"우선순위가 낮은 상가부터 동선에서 빠져요. 찜은 그대로 남아 있어요.":"우선순위가 낮은 매장부터 동선에서 빠지고, 카드 탭에선 그대로 볼 수 있어요."}${S0>need?` 모두 돌려면 ${hm(need)} 출발이 필요해요.`:""}`
@@ -1420,6 +1517,7 @@ function renderSheetBody(){
     const AX=[[TMIN,"9:30"],[720,"12"],[840,"14"],[960,"16"]];if(E>960)AX.push([E,"17"]);
     sh.innerHTML=`<div class="grab"></div><div class="hd"><h3>방문 일정</h3><button class="xbtn" data-close="1">닫기</button></div>
       <div class="seg" role="group" aria-label="요일"><button data-dset="wk" aria-pressed="${D0==="wk"}">평일</button><button data-dset="sat" aria-pressed="${sat}">토요일</button></div>
+      <div class="seg" role="group" aria-label="이동 수단"><button data-gset="sub" aria-pressed="${G0==="sub"}">지하철</button><button data-gset="car" aria-pressed="${G0==="car"}">자동차</button></div>
       <div class="tp" role="group" aria-label="추천 시간">${PRE.map(([m,l])=>`<button data-tset="${m}" aria-pressed="${m===S0}">${hm(m)}${m===rec?"<em>추천</em>":" "+l}</button>`).join("")}</div>
       <div class="tstep"><button class="sb" data-tstep="-15" aria-label="15분 빠르게"${S0<=TMIN?" disabled":""}>${IC.minus}</button><div class="tv" aria-live="polite"><b>${hm(S0)}</b><small>${hlab(S0)} 출발 · 15분 단위</small></div><button class="sb" data-tstep="15" aria-label="15분 늦게"${S0>=tmax?" disabled":""}>${IC.plus}</button></div>
       <div class="tbar" aria-hidden="true"><i class="free" style="left:${pct(840)}%;width:${((Math.min(960,E)-840)/W*100).toFixed(2)}%"></i><i class="me" style="left:${pct(S0)}%;width:${(r.span/W*100).toFixed(2)}%"></i></div>
@@ -1473,12 +1571,12 @@ function setMode(m,silent){
   if(sheetKind)renderSheet();
   if(!silent){toast(`${kidOf(m)} 기준으로 바꿨어요`);jelly();vib(8);if(state.tab==="home")setTimeout(greet,350)}
 }
-function applyStart(v,dy=state.day){
-  const ch=v!==state.start||dy!==state.day;
-  state.start=v;state.day=dy;store.set("nm2.start",v);store.set("nm2.day",dy);closeSheet();{const sy=$("#say");if(sy){clearTimeout(sayT);sy.classList.remove("on")}}
+function applyStart(v,dy=state.day,gx=state.go){
+  const ch=v!==state.start||dy!==state.day||gx!==state.go;
+  state.start=v;state.day=dy;state.go=gx;store.set("nm2.start",v);store.set("nm2.day",dy);store.set("nm2.go",gx);closeSheet();{const sy=$("#say");if(sy){clearTimeout(sayT);sy.classList.remove("on")}}
   renderHome();renderDeckChips();renderDeck();renderList();renderMap();renderPlan();renderInfo();updWish();
   lastK=JSON.stringify(stage());
-  toast(ch?`일정을 ${DAYL[dy]} ${hlab(v)}${ro(hlab(v))} 바꿨어요`:"일정은 그대로예요");
+  toast(ch?`일정을 ${DAYL[dy]} ${hlab(v)} · ${GOL[gx]}로 바꿨어요`:"일정은 그대로예요");
   if(ch){jelly();vib(8);if(state.tab==="home")setTimeout(greet,350)}
 }
 function jumpStore(id){
@@ -1489,11 +1587,14 @@ document.addEventListener("click",e=>{
   const t=e.target.closest("button,[data-bld],[data-sheet]");if(!t)return;
   const d=t.dataset;
   if(d.close||t.id==="sheetBg"){closeSheet();return}
-  if(d.time){tDraft=state.start;dDraft=state.day;openSheet("time");return}
+  if(d.photo!=null){openSheet("photo",{id:+d.photo,i:+d.i});return}
+  if(d.pv){sheetArg.i+=+d.pv;renderSheet();const f=$(`#sheet [data-pv="${d.pv}"]`);if(f&&!f.disabled)f.focus();return}
+  if(d.time){tDraft=state.start;dDraft=state.day;gDraft=state.go;openSheet("time");return}
+  if(d.gset){gDraft=d.gset;renderSheet();const f=$(`#sheet [data-gset="${d.gset}"]`);if(f)f.focus();return}
   if(d.dset){dDraft=d.dset;tDraft=Math.min(tDraft,tmaxOf(dDraft));renderSheet();const f=$(`#sheet [data-dset="${d.dset}"]`);if(f)f.focus();return}
   if(d.tset!=null){tDraft=+d.tset;renderSheet();const f=$(`#sheet [data-tset="${d.tset}"]`);if(f)f.focus();return}
   if(d.tstep){tDraft=Math.min(tmaxOf(dDraft),Math.max(TMIN,tDraft+ +d.tstep));renderSheet();const f=$(`#sheet [data-tstep="${d.tstep}"]`);if(f&&!f.disabled)f.focus();return}
-  if(d.tapply){applyStart(tDraft,dDraft);return}
+  if(d.tapply){applyStart(tDraft,dDraft,gDraft);return}
   if(d.mode){if(d.mode!==state.mode)setMode(d.mode);return}
   if(d.rm!=null){toggleWish(+d.rm,t);renderSheet();if(state.tab==="cards")state.view==="deck"?renderDeck():renderList();return}
   if(d.jump!=null){jumpStore(+d.jump);return}
@@ -1536,6 +1637,19 @@ setInterval(()=>{
 
 /* 주소창에서 #plan 처럼 해시만 바꿔도 해당 탭으로 이동 (go()는 replaceState라 이 이벤트를 다시 부르지 않음) */
 addEventListener("hashchange",()=>{const h=(location.hash||"").slice(1);if(["home","map","cards","plan","info"].includes(h)&&h!==state.tab){closeSheet();go(h)}});
+
+/* 사진 보기: 좌우로 밀어서 넘기기 */
+(()=>{let x0=null;const sh=$("#sheet");
+  sh.addEventListener("pointerdown",e=>{if(sheetKind==="photo"&&e.target.closest("#pvimg"))x0=e.clientX});
+  sh.addEventListener("pointerup",e=>{if(x0===null)return;const dx=e.clientX-x0;x0=null;if(Math.abs(dx)>40&&sheetArg){sheetArg.i+=dx<0?1:-1;renderSheet()}});
+  sh.addEventListener("pointercancel",()=>{x0=null});
+})();
+/* 사진이 하나라도 있으면 하단에 사용 원칙 문구를 보여준다 */
+function mxNote(){const n=$("#mxNote");if(!n)return;
+  const has=S.some(x=>{const m=mediaOf(x);return m&&m.ph.length});n.hidden=!has;
+  if(has)n.innerHTML="매장 사진은 직접 촬영했거나 사용 허락을 받은 것만 게시해요. 삭제를 원하시면 알려주세요."+(MEDIA_CONTACT?` (${escH(MEDIA_CONTACT)})`:"");
+}
+mxNote();
 
 /* ================= init ================= */
 (()=>{
