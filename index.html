@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F6F0E0">
 <meta name="robots" content="noindex,nofollow">
-<meta name="build" content="2026-11-06 · 일정(요일·시간)+시즌 자동+덱 찜 표시 수정">
+<meta name="build" content="2026-11-06 · 내 찜 동선+일정(요일·시간)+시즌 자동+덱 찜 표시 수정">
 <title>남대문 아동복 2시 쇼핑 가이드 (남아·여아)</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -344,6 +344,26 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 .step.opt .dot{background:transparent;box-shadow:inset 0 0 0 2.5px var(--ink2);border-style:dashed}
 .step.endi .dot{background:var(--cor);box-shadow:inset 0 0 0 2.5px var(--ink)}
 .step.endi .dot svg{display:none}
+/* 내 찜 코스 */
+.mbar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:rgba(23,21,31,.1);margin:14px 0 4px}
+.mbar i{display:block;border-right:2px solid var(--cream);min-width:4px}
+.mbar i:last-child{border-right:0}
+.mbl{display:flex;justify-content:space-between;font:600 11px var(--fn);color:var(--ink2)}
+.btag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--ink2)}
+.btag i{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--bc,var(--ink))}
+.sc .dur{margin-left:auto;font-size:12px;color:var(--ink2);font-weight:600}
+.stl{list-style:none;padding:0;margin:6px 0 0}
+.sr{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:6px 0;border-top:1px solid var(--hair);background:transparent;text-align:left;color:var(--ink)}
+.stl li:first-child .sr{border-top:0}
+.sr .ck{flex:none;width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--ink);display:grid;place-items:center;background:#fff;transition:.2s}
+.sr .ck svg{width:15px;height:15px;stroke:var(--lime);fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.sr.done .ck{background:var(--ink)}
+.sr.done .ck svg{opacity:1}
+.sr .nm{flex:1;font-size:16.5px;font-weight:800;letter-spacing:-.02em}
+.sr.done .nm{text-decoration:line-through;color:var(--ink2)}
+.sr .un{font-size:12.5px;color:var(--ink2);font-weight:600}
+.out{border:1.5px dashed var(--ink2);border-radius:22px;padding:13px 14px;margin-top:6px;font-size:14px;line-height:1.5}
+.out b{display:block;margin-bottom:3px}
 .optg{display:grid;gap:10px;margin-top:4px}
 .optc{border:2px dashed var(--ink2);border-radius:24px;padding:14px 16px}
 .optc p{font-size:14px;color:#3A3649;margin-top:6px}
@@ -541,7 +561,9 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 <!-- ================= PLAN ================= -->
 <section class="screen" id="s-plan" data-s="plan" aria-label="동선">
   <div class="sh"><div><h2 class="h2" id="pTitle">3시간 동선</h2><p class="sub" id="pSub">2~5시는 쇼핑에만 집중해요. 도착하면 탭해서 체크!</p><button class="tedit" data-time="1" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>일정 바꾸기</span></button></div></div>
+  <div class="seg" id="planSeg" hidden style="margin-top:14px"></div>
   <div class="pbar" id="pbar"></div>
+  <div id="mbar"></div>
   <ol class="steps" id="steps"></ol>
 
   <h3 class="h3">선택 · 타임라인 밖</h3>
@@ -793,6 +815,7 @@ const state={
 };
 if(state.mode!=="b"&&state.mode!=="g")state.mode="b";
 state.day=(()=>{const q=new URLSearchParams(location.search).get("d");if(q==="sat"||q==="wk")return q;const v=store.get("nm2.day",null);if(v==="sat"||v==="wk")return v;return kstDate().getUTCDay()===6?"sat":"wk"})();
+state.plan=(v=>v==="mine"||v==="guide"?v:null)(store.get("nm2.plan",null));
 state.start=(v=>v!=null&&Number.isFinite(+v)&&+v>=TMIN&&+v%TSTEP===0?Math.min(+v,tmaxOf(state.day)):recOf(state.day))(store.get("nm2.start",null));
 const save=()=>{store.set("nm2.wish",[...state.wish]);store.set("nm2.seen",state.seen);store.set("nm2.done",[...state.done]);store.set("nm2.prep",[...state.prep]);};
 const visible=s=>s.g==="u"||s.g===state.mode;
@@ -830,15 +853,43 @@ function schedFor(start,mode,day=state.day){
   });
   out.push({...raw[raw.length-1]});
   const endP=Math.min(E,cur);
-  const sp=day==="sat"?START[0].p.replace("평일 6시간권 17,000원","주차권"):endP-(start-30)>180?START[0].p:START[0].p.replace("평일 6시간권 17,000원","평일 3시간권(13,000원) 또는 6시간권(17,000원)");
+  const sp=arrText(start,day,endP);
   return {list:[{...START[0],t:hm(start-30),p:sp,start:1},...out],drop:all.filter(o=>!kept.includes(o)).map(o=>o.x),n:kept.length,end:endP,span:endP-start,full};
 }
+/* ---------- 내 찜 코스: 찜한 매장만 상가 지리 순서(1→7)로 이어서 계산 ----------
+   소요시간 가정: 상가 이동 5분 + 매장당 8분 (최소 15분, 5분 단위 올림). 체감과 다르면 MINE 값만 조정 */
+const MINE={arrive:5,per:8,min:15};
+const arrText=(start,day,endP)=>day==="sat"?START[0].p.replace("평일 6시간권 17,000원","주차권"):endP-(start-30)>180?START[0].p:START[0].p.replace("평일 6시간권 17,000원","평일 3시간권(13,000원) 또는 6시간권(17,000원)");
+const wishedVisible=()=>[...state.wish].map(id=>S[id]).filter(x=>x&&visible(x));
+const planKind=()=>wishedVisible().length&&state.plan!=="guide"?"mine":"guide";
+const floorKey=u=>{const m=String(u).match(/^(?:B(\d)|(\d+)F)?\s*(\d+)?/)||[];return [m[1]?-(+m[1]):(m[2]?+m[2]:0),+(m[3]||0)]};
+const stopLabel=n=>{const x=PLAN.b.concat(PLAN.g).find(y=>!y.end&&bOf(y.h)===n);return x?x.h:CIRC[n-1]+" "+BLD[n].name.split(" ")[0]};
+const stopName=x=>{if(!x.mine)return x.h;const n=x.stores.map(q=>q.b);return n.length<=2?n.join(" · "):n[0]+" 외 "+(n.length-1)+"곳"};
+const sKey=q=>"s|"+q.id;
+function schedMine(start,mode,day=state.day){
+  const E=endOf(day),avail=E-start,pr=n=>{const i=PRIO[mode].indexOf(n);return i<0?99:i};
+  const by={};wishedVisible().forEach(q=>(by[q.n]=by[q.n]||[]).push(q));
+  let kept=[1,2,3,4,5,6,7].filter(n=>by[n]).map(n=>{
+    const st=by[n].slice().sort((a,b)=>{const x=floorKey(a.u),y=floorKey(b.u);return x[0]-y[0]||x[1]-y[1]||a.id-b.id});
+    return {n,st,dur:Math.max(MINE.min,Math.ceil((MINE.arrive+MINE.per*st.length)/5)*5)}});
+  const all=kept.slice(),full=all.reduce((a,o)=>a+o.dur,0);
+  const fits=()=>{const l=kept[kept.length-1];return !l||kept.reduce((a,o)=>a+o.dur,0)-(l.dur-Math.min(l.dur,10))<=avail};
+  while(kept.length>1&&!fits()){let w=0;kept.forEach((o,i)=>{if(pr(o.n)>pr(kept[w].n))w=i});kept.splice(w,1)}
+  let cur=start;const out=[];
+  kept.forEach(o=>{const y={h:stopLabel(o.n),t:hm(cur),mine:1,stores:o.st,dur:o.dur,k:o.n};if(cur+o.dur>E)y.tight=1;out.push(y);cur+=o.dur});
+  const endP=Math.min(E,cur);
+  return {mine:1,list:[{...START[0],t:hm(start-30),p:arrText(start,day,endP),start:1},...out],
+    drop:all.filter(o=>!kept.includes(o)).map(o=>({h:stopLabel(o.n),stores:o.st,mine:1,k:o.n})),
+    n:kept.reduce((a,o)=>a+o.st.length,0),total:wishedVisible().length,nb:kept.length,end:endP,span:endP-start,full};
+}
+const schedPlan=(start,mode,day)=>planKind()==="mine"?schedMine(start,mode,day):schedFor(start,mode,day);
 let _sk="",_sv=null;
-function sched(){const k=state.mode+"|"+state.start+"|"+state.day;if(k!==_sk){_sk=k;_sv=schedFor(state.start,state.mode,state.day)}return _sv}
+function sched(){const w=wishedVisible().map(q=>q.id).sort((a,b)=>a-b).join(","),k=state.mode+"|"+state.start+"|"+state.day+"|"+planKind()+"|"+w;if(k!==_sk){_sk=k;_sv=schedPlan(state.start,state.mode,state.day)}return _sv}
 const items=()=>sched().list;
 const kOf=x=>state.mode+"|"+x.h;
 const tOf=k=>{const x=items().find(i=>!i.end&&!i.start&&bOf(i.h)===k);return x?x.t:""};
 const dropK=k=>sched().drop.some(x=>bOf(x.h)===k);
+const tLab=(k,gl)=>tOf(k)||(dropK(k)?"시간 부족":sched().mine?"찜 없음":gl);
 const shortStay=()=>sched().end-(state.start-30)<=180;
 function parkTile(){
   if(state.day==="sat")return ["주차권","앱에서 확인","토요일 요금은 주차 앱에서 · 입차 전 결제"];
@@ -846,7 +897,12 @@ function parkTile(){
 }
 function parkNote(){const a=state.start-30,e=sched().end;if(state.day==="sat")return `${hm(a)}에 입차해 ${kh(e)}까지 머문다면 약 ${durL(e-a)}이에요. 필요한 시간권은 앱에서 확인하세요. `;return e-a>180?`${hm(a)}에 입차해서 ${kh(e)} 넘어 출차하면 3시간권으론 부족해요. 차이가 4,000원이니 6시간권이 마음 편해요. `:`${hm(a)}에 입차해 ${kh(e)}까지 머문다면 3시간권으로도 가능해요. 차이가 4,000원이니 이동·정리 시간까지 보고 정하세요. `}
 const checkables=()=>items().filter(x=>!x.end&&!x.opt);
-function progress(){const c=checkables();return {d:c.filter(x=>state.done.has(kOf(x))).length,n:c.length}}
+const doneOf=x=>x.mine?x.stores.every(q=>state.done.has(sKey(q))):state.done.has(kOf(x));
+function progress(){
+  const sc=sched();
+  if(sc.mine){let d=0,n=0;for(const x of sc.list){if(x.end)continue;if(x.mine)x.stores.forEach(q=>{n++;if(state.done.has(sKey(q)))d++});else{n++;if(state.done.has(kOf(x)))d++}}return {d,n}}
+  const c=checkables();return {d:c.filter(x=>state.done.has(kOf(x))).length,n:c.length};
+}
 function stage(){
   const m=nowSec()/60, list=items().filter(x=>!x.end);
   if(m<state.start-30)return {ph:"before",curK:null};
@@ -858,7 +914,7 @@ function nextTarget(){
   const st=stage(), list=items().filter(x=>!x.end);
   if(st.ph==="after")return null;
   let i=st.ph==="before"?0:list.findIndex(x=>kOf(x)===st.curK);
-  for(let j=Math.max(i,0);j<list.length;j++){if(!state.done.has(kOf(list[j])))return {x:list[j],lab:st.ph==="before"?"첫 일정":(j===i?"NOW":"NEXT")}}
+  for(let j=Math.max(i,0);j<list.length;j++){if(!doneOf(list[j]))return {x:list[j],lab:st.ph==="before"?"첫 일정":(j===i?"NOW":"NEXT")}}
   return null;
 }
 function cdInfo(){
@@ -902,7 +958,7 @@ function greet(){
   const st=stage();
   if(st.ph==="before")return say(`오늘 ${hlab(state.start)} 출발! ${kidOf(state.mode)} ${SEAS.item} 사냥 가자`);
   if(st.ph==="after")return say("오늘 쇼핑 끝! 수고했어");
-  const n=nextTarget();say(n?`지금은 ${n.x.h} 차례야!`:"동선 다 돌았어! 찜한 곳 다시 볼까?");
+  const n=nextTarget();say(n?`지금은 ${stopName(n.x)} 차례야!`:"동선 다 돌았어! 찜한 곳 다시 볼까?");
 }
 function jelly(){const w=$("#bagwrap");w.classList.remove("jelly");void w.offsetWidth;w.classList.add("jelly")}
 $("#face").addEventListener("click",()=>{jelly();{const Q=quips();say(Q[qi++%Q.length])}fxAt($("#face"),10,80);vib(10)});
@@ -954,6 +1010,12 @@ function renderNext(){
     return;
   }
   const x=n.x,b=bOf(x.h);
+  if(x.mine){
+    const B=BLD[x.k],ids=x.stores.map(q=>q.id).join(",");el.style.setProperty("--bc",BC[x.k]);
+    el.innerHTML=`<span class="lab">${n.lab} · ${x.t}</span><h3>${stopName(x)}</h3><p>${B.name.split(" ")[0]} · ${B.floor} · 약 ${x.dur}분</p><div class="chips">${x.stores.map(q=>`<span class="chip acc">${q.b} ${q.u}</span>`).join("")}</div>
+      <div class="row"><button class="btn pri" data-doneall="${ids}">${IC.check}다 둘러봤어요</button><button class="btn sec" data-go="plan">동선 보기</button></div>`;
+    return;
+  }
   el.style.setProperty("--bc",BC[b]||BC[1]);
   el.innerHTML=`<span class="lab">${n.lab} · ${x.t}</span><h3>${x.h}</h3><p>${x.p}</p>
     ${x.c?`<div class="chips">${x.c.map(c=>`<span class="chip acc">${c}</span>`).join("")}</div>`:""}
@@ -979,7 +1041,7 @@ function cardHTML(s,i){
   const wished=state.wish.has(s.id);
   return `<div class="dcard ${i===0?"cur0":"l"+i}${wished?" wished":""}" data-id="${s.id}">
     <span class="stamp k">찜!</span><span class="stamp s">PASS</span>${wished?`<span class="wishtag">${IC.heart}찜한 매장</span>`:""}
-    <div class="cb" style="--bc:${BC[s.n]}"><span class="dots"></span><span class="no">${pad(s.n)}</span><span class="bn">${B.name}<span>${B.floor}</span></span><span class="tm ${time?"":"skip"}">${time||(dropK(s.n)?"시간 부족":"생략 상가")}</span></div>
+    <div class="cb" style="--bc:${BC[s.n]}"><span class="dots"></span><span class="no">${pad(s.n)}</span><span class="bn">${B.name}<span>${B.floor}</span></span><span class="tm ${time?"":"skip"}">${time||tLab(s.n,"생략 상가")}</span></div>
     <div class="cbody"><h3>${s.b}</h3><span class="unit">${s.u}</span><p>${s.d}</p>${(state.mode==="g"&&s.sz)?`<span class="sz">원문 구매 ${s.sz} · 85cm 기준</span>`:""}<div class="bdg">${bd}</div></div>
   </div>`;
 }
@@ -1055,7 +1117,7 @@ function bldBlock(k,list,extra){
   const B=BLD[k],time=tOf(k),m=state.mode,other=m==="b"?"여아":"남아";
   const hidden=S.filter(s=>s.n===k&&!visible(s)).length;
   return `<article class="bld" id="bld-${k}">
-    <div class="bld-h" style="--bc:${BC[k]}"><div class="bld-no">${pad(k)}</div><div><h3>${B.name}<em>${time||(dropK(k)?"시간 부족":"생략")}</em></h3><p>${B.floor} · ${B.desc}</p></div></div>
+    <div class="bld-h" style="--bc:${BC[k]}"><div class="bld-no">${pad(k)}</div><div><h3>${B.name}<em>${time||tLab(k,"생략")}</em></h3><p>${B.floor} · ${B.desc}</p></div></div>
     ${(()=>{const A=ADDR[k];return A?`<div class="addr"><span class="pin">${IC.pin}</span><span class="at"><b>${A.t}</b><small>${A.v?"구글 지도 기준":"검색으로 열어 확인해요"}</small></span><a class="mapbtn" href="${mapUrl(A.q)}" target="_blank" rel="noopener">네이버지도 열기</a></div>`:""})()}
     ${list.length?list.map(storeRow).join(""):`<div class="emp">${kidOf(m)} 매장이 없는 상가예요.</div>`}
     ${extra&&noteOf(k)?`<div class="note">${noteOf(k)}</div>`:""}
@@ -1121,11 +1183,46 @@ function renderMap(){
     ${RM?"":`<circle r="7" style="fill:var(--acc);stroke:#fff;stroke-width:3"><animateMotion dur="7s" repeatCount="indefinite" path="${P}"/></circle>`}
   </svg>`;
   $("#brow").innerHTML=[1,2,3,4,5,6,7].map(k=>{const c=cnt(k),t=tOf(k);
-    return `<button data-bld="${k}"><span class="n" style="--bc:${t?BC[k]:"#E6DEC6"}">${pad(k)}</span><span><b>${BLD[k].name}</b><small>${t?t+" 도착 · ":(dropK(k)?"시간이 모자라 제외 · ":"이번엔 생략 · ")}${BLD[k].floor}</small></span><span class="c ${t?"":"sk"}">${c}곳</span></button>`}).join("");
+    return `<button data-bld="${k}"><span class="n" style="--bc:${t?BC[k]:"#E6DEC6"}">${pad(k)}</span><span><b>${BLD[k].name}</b><small>${t?t+" 도착 · ":(dropK(k)?"시간이 모자라 제외 · ":sched().mine?"찜 없음 · ":"이번엔 생략 · ")}${BLD[k].floor}</small></span><span class="c ${t?"":"sk"}">${c}곳</span></button>`}).join("");
 }
 
 /* ================= PLAN ================= */
+function renderPlanSeg(){
+  const seg=$("#planSeg"),has=wishedVisible().length>0;seg.hidden=!has;
+  if(!has){seg.innerHTML="";return}
+  const mine=planKind()==="mine";
+  seg.innerHTML=`<button data-plan="mine" aria-pressed="${mine}">내 찜 동선</button><button data-plan="guide" aria-pressed="${!mine}">추천 동선</button>`;
+}
+function renderPlanMine(){
+  const p=progress(),st=stage(),sc=sched(),E=endOf(),W=E-state.start;
+  $("#pTitle").textContent="내 동선 · "+durL(sc.span);
+  $("#pSub").textContent=`찜 ${sc.total}곳 중 ${sc.n}곳 · 상가 ${sc.nb}곳 · ${hm(state.start)}–${hm(sc.end)}`;
+  $("#pbar").innerHTML=`<div class="big num">${p.d}<small>/${p.n}</small></div><div style="flex:1"><div class="bar"><i style="width:${p.n?p.d/p.n*100:0}%"></i></div><p>${p.d===p.n?"오늘 동선 완주! 찜 목록을 확인해보세요":p.d?"좋아요, 계속 가볼까요?":"매장을 둘러보고 탭해서 체크해요"}</p></div>`;
+  $("#mbar").innerHTML=`<div class="mbar" aria-hidden="true">${sc.list.filter(x=>x.mine).map(x=>`<i style="width:${(Math.min(x.dur,E-toMin(x.t))/W*100).toFixed(2)}%;background:${BC[x.k]}"></i>`).join("")}</div><div class="mbl" aria-hidden="true"><span>${hm(state.start)}</span><span>${hm(E)} 마감</span></div>`;
+  $("#steps").innerHTML=sc.list.map(x=>{
+    const k=kOf(x);
+    if(!x.mine){
+      const done=state.done.has(k),cur=st.curK===k&&!done;
+      return `<li class="step ${done?"done":""} ${cur?"cur":""}"><button class="dot" data-done="${k}" aria-pressed="${done}" aria-label="${x.h} 완료 체크">${IC.check}</button>
+        <div class="sc"><div class="th"><span class="tm">${x.t}</span><h4>${x.h}</h4>${cur?'<span class="badge pk">Now</span>':""}</div><p>${x.p}</p></div></li>`;
+    }
+    const done=doneOf(x),cur=st.curK===k&&!done,B=BLD[x.k],ids=x.stores.map(q=>q.id).join(",");
+    return `<li class="step ${done?"done":""} ${cur?"cur":""}"><button class="dot" data-doneall="${ids}" aria-pressed="${done}" aria-label="${B.name.split(" ")[0]} 전체 체크">${IC.check}</button>
+      <div class="sc"><div class="th"><span class="tm">${x.t}</span><span class="btag" style="--bc:${BC[x.k]}"><i></i>${B.name.split(" ")[0]} · ${B.floor}</span>${cur?'<span class="badge pk">Now</span>':""}<span class="dur">약 ${x.dur}분</span></div>
+        <ul class="stl">${x.stores.map(q=>{const d=state.done.has(sKey(q));return `<li><button class="sr ${d?"done":""}" data-done="${sKey(q)}" aria-pressed="${d}"><span class="ck">${IC.check}</span><span class="nm">${q.b}</span><span class="un">${q.u}</span></button></li>`}).join("")}</ul>
+        ${x.tight?"<p><b>마감까지 빠듯해요.</b> 서둘러 보세요.</p>":""}
+        <div class="row"><button class="btn sec" data-bld="${x.k}">매장 보기</button></div></div></li>`;
+  }).join("");
+  let c="";
+  if(sc.drop.length){const dn=sc.drop.reduce((a,g)=>a+g.stores.length,0);
+    c=`<div class="out"><b>시간이 모자라 동선 밖이에요 · ${dn}곳</b>${sc.drop.map(g=>`${BLD[g.k].name.split(" ")[0]} — ${g.stores.map(q=>q.b).join(", ")}`).join("<br>")}<br>마감(${hm(E)}) 안에 들어가지 않아요. 찜은 그대로 남아 있어요.</div>`}
+  else if(E-sc.end>=30)c=`<div class="call c1"><div class="ic">+</div><div><b>마감까지 ${durL(E-sc.end)} 여유가 있어요</b> 카드에서 더 찜하면 동선에 이어 붙여 드려요.</div></div>`;
+  $("#calls").innerHTML=c;
+}
 function renderPlan(){
+  renderPlanSeg();
+  if(sched().mine){renderPlanMine();return}
+  $("#mbar").innerHTML="";
   const p=progress(),st=stage(),m=state.mode;
   const sc=sched(),satL=durL(Math.max(0,960-state.start)),satOk=state.start+sc.full<=960;
   const sat2=state.day==="sat"?`<div class="call c2"><div class="ic">平</div><div><b>평일이라면</b> 17시까지라 1시간 더 여유 있어요.</div></div>`:`<div class="call c2"><div class="ic">土</div><div><b>토요일이라면</b> ${satOk?"16시 조기 마감이어도 이 출발 시간이면 동선을 모두 돌 수 있어요.":`16시 조기 마감이라 ${satL}뿐이에요. ${m==="b"?"씨티아이 → 부르뎅 → 페인트타운 세 곳만 노리세요.":"씨티아이 → 웅이 → 부르뎅 세 곳만 노리세요."}`}</div></div>`;
@@ -1141,7 +1238,7 @@ function renderPlan(){
       ${x.c?`<div class="chips">${x.c.map(c=>`<span class="chip ${x.key?"acc":""}">${c}</span>`).join("")}</div>`:""}
       ${b?`<div class="row"><button class="btn sec" data-bld="${b}">매장 보기</button><button class="btn lime" data-deck="${b}">카드로 고르기</button></div>`:""}</div></li>`;
   }).join("");
-  $("#calls").innerHTML=`${dc}
+  $("#calls").innerHTML=`${wishedVisible().length?"":`<div class="call c1"><div class="ic">♥</div><div><b>찜하면 내 동선이 만들어져요</b> 카드에서 마음에 드는 매장을 찜하면, 찜한 매장만 순서대로 이어 드려요. <button class="lnk" data-go="cards" data-v="deck">카드 고르러 가기</button></div></div>`}${dc}
     <div class="call c1"><div class="ic">!</div><div><b>시간이 모자라면</b> ${m==="b"?"씨티아이 → 부르뎅 → 페인트타운 → 마마 순으로 우선순위를 두세요. 부르뎅에 남아·공용 매장이 가장 많아요.":"씨티아이 → 부르뎅 → 웅이 → 마마 순으로 우선순위를 두세요. 웅이에 여아 전문 매장이 몰려 있어요."}</div></div>
     ${sat2}`;
 }
@@ -1219,10 +1316,10 @@ function renderSheetBody(){
     sh.innerHTML=`<div class="grab"></div><div class="hd"><h3>${pad(k)} ${BLD[k].name}</h3><button class="xbtn" data-close="1">닫기</button></div>
       ${bldBlock(k,l,true)}${l.length?`<button class="wide" data-deck="${k}"><span>이 상가 카드로 고르기</span><span class="ar">${IC.go}</span></button>`:""}`;
   }else if(sheetKind==="time"){
-    const D0=dDraft,S0=tDraft,sat=D0==="sat",E=endOf(D0),r=schedFor(S0,state.mode,D0),tot=PLAN[state.mode].filter(x=>!x.end).length,W=E-TMIN,pct=m=>((m-TMIN)/W*100).toFixed(2),rec=recOf(D0),tmax=tmaxOf(D0);
+    const D0=dDraft,S0=tDraft,sat=D0==="sat",E=endOf(D0),r=schedPlan(S0,state.mode,D0),tot=r.mine?r.total:PLAN[state.mode].filter(x=>!x.end).length,need=Math.max(TMIN,r.mine?E-r.full:recOf(D0)),W=E-TMIN,pct=m=>((m-TMIN)/W*100).toFixed(2),rec=recOf(D0),tmax=tmaxOf(D0);
     const PRE=[[TMIN,"영업 시작"],[750,"점심 후"],[rec,""],[tmax,"늦게"]];
     const note=S0<BASE?(S0<720?"콘은 오전엔 오픈런(10:30) 번호표가 필요하고 14~16시는 프리입장이에요. 이 시간엔 대기가 있을 수 있어요. 동선은 ":"콘 프리입장은 14~16시예요. 그 전 시간대라 대기가 있을 수 있어요. 동선은 ")+kh(r.end)+"쯤 끝나요."+(sat?" 토요일 콘 운영은 확인이 필요해요.":"")
-      :r.n<tot?`마감(${hm(E)}) 안에 ${r.n}곳만 돌 수 있어요. 우선순위가 낮은 매장부터 동선에서 빠지고, 카드 탭에선 그대로 볼 수 있어요.${S0>rec?` 모두 돌려면 ${hm(rec)} 출발이 필요해요.`:""}`
+      :r.n<tot?`마감(${hm(E)}) 안에 ${r.n}곳만 돌 수 있어요. ${r.mine?"우선순위가 낮은 상가부터 동선에서 빠져요. 찜은 그대로 남아 있어요.":"우선순위가 낮은 매장부터 동선에서 빠지고, 카드 탭에선 그대로 볼 수 있어요."}${S0>need?` 모두 돌려면 ${hm(need)} 출발이 필요해요.`:""}`
       :r.list.some(x=>x.tight)?"기본 동선 그대로 돌 수 있지만 마지막 매장은 시간이 빠듯해요."
       :sat?`토요일 마감(${hm(E)})에 맞춰 모든 매장을 돌 수 있는 시간이에요. 콘 프리입장은 토요일 확인이 필요해요.`
       :S0===BASE?"콘 프리입장 시간대(14~16시)에 맞춘 기본 동선이에요.":"콘 프리입장 시간대라 기본 동선 그대로 돌 수 있어요.";
@@ -1242,7 +1339,8 @@ function renderSheetBody(){
     let h=`<div class="grab"></div><div class="hd"><h3>찜한 매장 ${ids.length}곳</h3><button class="xbtn" data-close="1">닫기</button></div>`;
     if(!ids.length)h+=`<div class="none">${MINI.replace('class="mini"','class="mini" style="width:84px;margin:0 auto 10px"')}<b>아직 찜한 매장이 없어요</b><br>카드를 오른쪽으로 밀어서 찜해보세요.<br><br><button class="btn pri" data-go="cards" data-v="deck">카드 넘기러 가기</button></div>`;
     else for(let k=1;k<=7;k++){const l=ids.map(i=>S[i]).filter(s=>s.n===k);if(!l.length)continue;
-      h+=`<div class="wl-g">${pad(k)} ${BLD[k].name}${tOf(k)?" · "+tOf(k):""}</div>`+l.map(s=>`<div class="wl-r"><button class="go" data-jump="${s.id}"><b>${s.b}</b><small>${s.u} · ${s.d.split(/[,·]/)[0]}</small></button><button class="rm" data-rm="${s.id}" aria-label="${s.b} 찜 해제">${IC.x}</button></div>`).join("")}
+      h+=`<div class="wl-g">${pad(k)} ${BLD[k].name}${tOf(k)?" · "+tOf(k):dropK(k)?" · 시간 부족":""}</div>`+l.map(s=>`<div class="wl-r"><button class="go" data-jump="${s.id}"><b>${s.b}</b><small>${s.u} · ${s.d.split(/[,·]/)[0]}</small></button><button class="rm" data-rm="${s.id}" aria-label="${s.b} 찜 해제">${IC.x}</button></div>`).join("")}
+    if(ids.length)h+=`<div style="display:flex;margin-top:14px"><button class="btn pri" data-go="plan">내 동선 보기</button></div>`;
     const hid=[...state.wish].filter(id=>S[id]&&!visible(S[id])).length;
     if(hid)h+=`<p class="sub" style="margin:12px 4px 0">${state.mode==="b"?"여아":"남아"} 모드에서 찜한 ${hid}곳은 그쪽에서 보여요.</p>`;
     sh.innerHTML=h;
@@ -1306,9 +1404,14 @@ document.addEventListener("click",e=>{
   if(d.rm!=null){toggleWish(+d.rm,t);renderSheet();if(state.tab==="cards")state.view==="deck"?renderDeck():renderList();return}
   if(d.jump!=null){jumpStore(+d.jump);return}
   if(t.classList.contains("heart")&&d.id!=null){toggleWish(+d.id,t);if(sheetKind==="wish")renderSheet();return}
-  if(d.done){const on=!state.done.has(d.done);on?state.done.add(d.done):state.done.delete(d.done);save();
+  if(d.plan){state.plan=d.plan;store.set("nm2.plan",d.plan);renderPlan();renderMap();if(state.tab==="home")renderHome();const f=$(`#planSeg [data-plan="${d.plan}"]`);if(f)f.focus({preventScroll:true});return}
+  if(d.done||d.doneall){let on;
+    if(d.doneall){const ks=d.doneall.split(",").map(i=>"s|"+i);on=!ks.every(k=>state.done.has(k));ks.forEach(k=>on?state.done.add(k):state.done.delete(k))}
+    else{on=!state.done.has(d.done);on?state.done.add(d.done):state.done.delete(d.done)}
+    save();
     if(on){fxAt(t,16,90);vib(14)}
     const y=scrollY;renderPlan();if(state.tab==="home"){renderHome();jelly()}renderMap();scrollTo(0,y);
+    if(state.tab==="plan"){const f=$(d.done?`#steps [data-done="${d.done}"]`:`#steps [data-doneall="${d.doneall}"]`);if(f)f.focus({preventScroll:true})}
     const p=progress();if(on&&p.d===p.n){toast("오늘 동선 완주! 수고했어요");setTimeout(()=>fx(innerWidth/2,innerHeight/2,40,220),200)}
     else if(on)toast(p.d+"/"+p.n+" 체크 완료");return}
   if(d.sheet==="wish"){openSheet("wish");return}

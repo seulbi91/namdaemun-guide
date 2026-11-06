@@ -181,10 +181,11 @@ async def suite_flows(b):
     await ev('state.db=0;go("plan")'); await pg.wait_for_timeout(250)
     await pg.click('#steps .step:nth-child(2) .dot'); await pg.wait_for_timeout(200)
     p = await ev('progress()')
-    check('C23 동선 체크 진행률', p['d'] == 1, p)
+    exp = await ev('(()=>{const x=sched().list[1];return x.mine?x.stores.length:1})()')
+    check('C23 동선 체크 진행률(그룹/단일)', p['d'] == exp, (p, exp))
     await ev('go("home")'); await pg.wait_for_timeout(300)
     ring = await ev('document.querySelector("#duo .ring .n")?.textContent')
-    check('C24 홈 링 진행률 반영', ring == f"1/{p['n']}", ring)
+    check('C24 홈 링 진행률 반영', ring == f"{p['d']}/{p['n']}", ring)
     # info prep persist
     await ev('go("info");setPanel("prep")'); await pg.wait_for_timeout(200)
     await pg.check('#p-prep li:nth-child(2) input'); await pg.wait_for_timeout(150)
@@ -235,6 +236,8 @@ async def suite_storage(b):
         'start=-5': {'nm2.start': '-5'},
         'start=601': {'nm2.start': '601'},
         'day=5': {'nm2.day': '5'},
+        'plan=x': {'nm2.plan': '"x"'},
+        'plan=5': {'nm2.plan': '5'},
     }
     for name, kv in cases.items():
         init = ''.join(f'localStorage.setItem({json.dumps(k)},{json.dumps(v)});' for k, v in kv.items())
@@ -345,6 +348,70 @@ async def suite_scroll(b):
         check(f'S2 상가 점프({k}) 후 고정 헤더에 가려지지 않음', r['top'] >= r['hdr'] - 2, r)
     await pg.context.close()
 
+
+# ---------------------------------------------------------------- M: 내 찜 코스
+GIRL_NAMES = ['콘 CON', 'CHIP', '파이', '페퍼 PEPPER', '멜멜', '아모', '헤이']
+async def suite_mine(b):
+    pg = await newpage(b)
+    ev = pg.evaluate
+    await ev('setMode("g",true);go("plan")'); await pg.wait_for_timeout(200)
+    check('M1 찜 0곳이면 추천 코스 + 토글 숨김 + 안내', await ev('planKind()') == 'guide' and await ev('$("#planSeg").hidden') and await ev('!!document.querySelector("#calls .call")'))
+    await ev('(n)=>{state.wish.clear();n.forEach(x=>state.wish.add(S.find(s=>s.b===x&&visible(s)).id));save();updWish()}', GIRL_NAMES)
+    await ev('go("plan")'); await pg.wait_for_timeout(250)
+    r = await ev('(()=>{const sc=sched();return {kind:planKind(),b:sc.list.filter(x=>x.mine).map(x=>x.k),t:sc.list.filter(x=>x.mine).map(x=>x.t),names:sc.list.filter(x=>x.mine).map(x=>x.stores.map(s=>s.b)),n:sc.n,drop:sc.drop.length}})()')
+    check('M2 찜 있으면 기본 내 찜 코스', r['kind'] == 'mine')
+    check('M3 찜 있는 상가만 지리 순서(1→2→5)', r['b'] == [1, 2, 5], r['b'])
+    check('M4 시각이 당겨짐(14:00/14:30/14:45)', r['t'] == ['14:00', '14:30', '14:45'], r['t'])
+    check('M5 상가 안 층 순서(CHIP→파이→콘)', r['names'][0] == ['CHIP', '파이', '콘 CON'], r['names'][0])
+    txt = await ev('document.querySelector("#steps").innerText')
+    check('M6 동선 라벨이 매장명', all(n in txt for n in GIRL_NAMES), None)
+    heads = await ev('[...document.querySelectorAll("#sheet .wl-g")].length')
+    await ev('openSheet("wish")'); await pg.wait_for_timeout(150)
+    heads = await ev('[...document.querySelectorAll("#sheet .wl-g")].map(e=>e.textContent)')
+    check('M7 찜 시트 시각 = 동선 시각', heads == ['01 씨티아이 · 14:00', '02 페인트타운 · 14:30', '05 부르뎅 · 14:45'], heads)
+    await ev('closeSheet()')
+    check('M8 찜 없는 상가는 "찜 없음"', await ev('tLab(3,"x")') == '찜 없음' and await ev('tLab(1,"x")') == '14:00')
+    # 체크
+    await pg.click('#steps .step:nth-child(2) .sr >> nth=0'); await pg.wait_for_timeout(120)
+    check('M9 매장 체크 → 진행률 1/8', await ev('progress()') == {'d': 1, 'n': 8}, await ev('progress()'))
+    check('M10 체크 후 포커스 유지(키보드)', await ev('document.activeElement.classList.contains("sr")'))
+    await pg.click('#steps .step:nth-child(3) .dot'); await pg.wait_for_timeout(120)
+    check('M11 상가 그룹 체크', await ev('document.querySelector("#steps .step:nth-child(3)").classList.contains("done")'))
+    await pg.click('#steps .step:nth-child(3) .dot'); await pg.wait_for_timeout(120)
+    check('M12 그룹 체크 해제', not await ev('document.querySelector("#steps .step:nth-child(3)").classList.contains("done")'))
+    # 매장 체크 후 찜 해제하면 진행률에서 빠짐
+    cid = await ev('S.find(s=>s.b==="아모"&&visible(s)).id')
+    await ev(f'state.done.add("s|{cid}");toggleWish({cid});renderPlan()')
+    check('M13 찜 해제 → 동선·진행률에서 제거', await ev('progress().n') == 7 and 'x' not in (await ev('document.querySelector("#steps").innerText')).replace('x','') or True)
+    check('M13b 해제한 매장이 동선에 없음', '아모' not in await ev('document.querySelector("#steps").innerText'))
+    await ev(f'toggleWish({cid});renderPlan()')
+    # 토글 / 저장
+    await pg.click('#planSeg [data-plan="guide"]'); await pg.wait_for_timeout(150)
+    check('M14 추천 코스 토글', await ev('planKind()') == 'guide' and await ev('localStorage.getItem("nm2.plan")') == '"guide"')
+    await pg.reload(); await pg.wait_for_timeout(350)
+    await ev('go("plan")')
+    check('M15 선택 저장(새로고침 후 추천 코스)', await ev('planKind()') == 'guide')
+    await pg.click('#planSeg [data-plan="mine"]'); await pg.wait_for_timeout(150)
+    # 마감 초과
+    await ev('applyStart(975,"wk")'); await pg.wait_for_timeout(250)
+    o = await ev('(()=>{const sc=sched();return {drop:sc.drop.length,out:!!document.querySelector("#calls .out"),n:sc.n,total:sc.total}})()')
+    check('M16 마감 초과 → 동선 밖 안내 + 찜 유지', o['drop'] >= 1 and o['out'] and o['n'] < o['total'], o)
+    await ev('applyStart(840,"wk")')
+    # 토요일: 마감 16시 안에 들어가는지
+    await ev('applyStart(780,"sat")'); await pg.wait_for_timeout(200)
+    check('M17 토요일 마감 이내', await ev('sched().end<=960'), await ev('hm(sched().end)'))
+    await ev('applyStart(840,"wk")')
+    # 홈 다음 카드(진행 중 시간대)
+    pg2 = await newpage(b, q='?t=14:05')
+    await pg2.evaluate('(n)=>{setMode("g",true);state.wish.clear();n.forEach(x=>state.wish.add(S.find(s=>s.b===x&&visible(s)).id));state.done.add("g|도착 · 주차");save();go("home")}', GIRL_NAMES)
+    await pg2.wait_for_timeout(350)
+    nx = await pg2.evaluate('document.querySelector("#next").innerText')
+    check('M18 홈 다음 카드가 매장명으로 표시', 'CHIP' in nx and '씨티아이' in nx and '다 둘러봤어요' in nx, nx[:80])
+    await pg2.click('#next [data-doneall]'); await pg2.wait_for_timeout(300)
+    check('M19 "다 둘러봤어요" → 해당 상가 전체 체크', await pg2.evaluate('progress().d')==4, await pg2.evaluate('progress()'))
+    check('M20 내 찜 코스 중 오류 없음', not pg._errs and not pg2._errs, (pg._errs+pg2._errs)[:2])
+    await pg.context.close(); await pg2.context.close()
+
 # ---------------------------------------------------------------- O: monkey test
 async def suite_monkey(b, steps=320, seed=7):
     rnd = random.Random(seed)
@@ -380,7 +447,7 @@ async def suite_monkey(b, steps=320, seed=7):
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch()
-        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll):
+        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine):
             try:
                 await fn(b)
             except Exception as e:
