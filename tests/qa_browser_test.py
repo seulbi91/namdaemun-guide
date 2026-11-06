@@ -412,6 +412,26 @@ async def suite_mine(b):
     check('M20 내 찜 코스 중 오류 없음', not pg._errs and not pg2._errs, (pg._errs+pg2._errs)[:2])
     await pg.context.close(); await pg2.context.close()
 
+
+# ---------------------------------------------------------------- L: 편의성(첫 화면) 회귀 점검
+async def suite_layout_ux(b):
+    names = ['콘 CON', 'CHIP', '파이', '페퍼 PEPPER', '멜멜', '아모', '헤이']
+    for t, live in (('14:05', True), ('10:00', False)):
+        pg = await newpage(b, w=390, h=844, q=f'?t={t}')
+        await pg.evaluate('(n)=>{setMode("g",true);state.wish.clear();n.forEach(x=>state.wish.add(S.find(s=>s.b===x&&visible(s)).id));save();updWish();go("home")}', names)
+        await pg.wait_for_timeout(300)
+        m = await pg.evaluate('({live:document.querySelector("#s-home").classList.contains("live"),next:Math.round(document.querySelector("#next").getBoundingClientRect().top),tabs:Math.round(document.querySelector(".tabs").getBoundingClientRect().top),tiles:document.querySelectorAll("#tiles .tile").length,hero:document.querySelector("#hTitle").innerText})')
+        check(f'L1 홈 배치 {t} (쇼핑 중={live})', m['live'] == live, m)
+        if live:
+            check('L2 쇼핑 중엔 다음 일정이 첫 화면 안', m['next'] < m['tabs'] - 60, m)
+            check('L3 쇼핑 중 제목 "지금 쇼핑 중!"', '지금 쇼핑 중' in m['hero'], m['hero'])
+        check(f'L4 홈 타일 2개 {t}', m['tiles'] == 2, m['tiles'])
+        await pg.evaluate('go("plan")'); await pg.wait_for_timeout(200)
+        r = await pg.evaluate('({s:Math.round(document.querySelector("#steps .step:nth-child(2)").getBoundingClientRect().top),tabs:Math.round(document.querySelector(".tabs").getBoundingClientRect().top),row:document.querySelector(".prow .tedit")&&document.querySelector(".prow #planSeg")?1:0})')
+        check(f'L5 동선 첫 상가가 첫 화면 안 {t}', r['s'] < r['tabs'] - 60 and r['row'] == 1, r)
+        check(f'L6 오류 없음 {t}', not pg._errs, pg._errs[:2])
+        await pg.context.close()
+
 # ---------------------------------------------------------------- O: monkey test
 async def suite_monkey(b, steps=320, seed=7):
     rnd = random.Random(seed)
@@ -447,7 +467,7 @@ async def suite_monkey(b, steps=320, seed=7):
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch()
-        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine):
+        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine, suite_layout_ux):
             try:
                 await fn(b)
             except Exception as e:

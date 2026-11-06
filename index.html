@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F6F0E0">
 <meta name="robots" content="noindex,nofollow">
-<meta name="build" content="2026-11-06 · 내 찜 동선+일정(요일·시간)+시즌 자동+덱 찜 표시 수정">
+<meta name="build" content="2026-11-06 · 편의성 정리(홈 현장 배치·타일 2개·동선 상단)+내 찜 동선">
 <title>남대문 아동복 2시 쇼핑 가이드 (남아·여아)</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -116,6 +116,15 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 .ch i{font-style:normal;font-size:11px;font-weight:700;background:rgba(255,255,255,.7);border-radius:999px;padding:2px 8px;white-space:nowrap}
 .t-mint{background:var(--mint)}.t-sky{background:var(--sky)}.t-lime{background:var(--lime)}.t-pink{background:var(--pink)}.t-yel{background:var(--yel)}.t-cor{background:var(--cor)}.t-ink{background:var(--ink);color:#fff}
 .tile.cta{justify-content:space-between}
+/* 쇼핑 시간 중(live): 다음 일정이 먼저, 마스코트는 작게 */
+#s-home.live .tiles{display:none}
+#s-home.live .bag{padding-top:84px}
+#s-home.live .bagwrap{margin:46px 30px 56px}
+#s-home.live .duo{margin-top:16px}
+/* 동선: 토글 + 일정 버튼 한 줄 */
+.prow{display:flex;gap:8px;align-items:center;margin-top:14px}
+.prow .seg{flex:1;margin:0}
+.prow .tedit{margin-top:0;flex:none}
 .tile.cta .big{font-size:21px;line-height:1.15;font-weight:800;letter-spacing:-.03em}
 .tile.cta .go{width:38px;height:38px;border-radius:50%;background:var(--ink);display:grid;place-items:center;align-self:flex-end}
 .tile.cta .go svg{width:18px;height:18px;stroke:var(--lime);opacity:1}
@@ -508,7 +517,7 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
         </svg>
       </div>
       <div class="tiles" id="tiles"></div>
-      <button class="wide" data-go="plan"><span>동선 시작하기</span><span class="ar"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+      <button class="wide" data-go="plan"><span id="ctaL">동선 시작하기</span><span class="ar"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
     </div>
   </div>
 
@@ -550,7 +559,7 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 
 <!-- ================= MAP ================= -->
 <section class="screen" id="s-map" data-s="map" aria-label="지도">
-  <div class="sh"><div><h2 class="h2">상가 지도</h2><p class="sub">건물을 탭하면 매장이 열려요</p></div></div>
+  <div class="sh"><div><h2 class="h2">상가 지도</h2><p class="sub">상가를 탭하면 매장이 열려요</p></div></div>
   <div class="mapbox">
     <div id="mapSvg"></div>
     <div class="lgd"><span><i style="background:var(--acc)"></i>숫자 = 매장 수</span><span><i style="background:var(--lime)"></i>지금 정류장</span><span><i style="background:#E6DEC6"></i>이번엔 생략</span></div>
@@ -560,8 +569,8 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 
 <!-- ================= PLAN ================= -->
 <section class="screen" id="s-plan" data-s="plan" aria-label="동선">
-  <div class="sh"><div><h2 class="h2" id="pTitle">3시간 동선</h2><p class="sub" id="pSub">2~5시는 쇼핑에만 집중해요. 도착하면 탭해서 체크!</p><button class="tedit" data-time="1" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>일정 바꾸기</span></button></div></div>
-  <div class="seg" id="planSeg" hidden style="margin-top:14px"></div>
+  <div class="sh"><div><h2 class="h2" id="pTitle">3시간 동선</h2><p class="sub" id="pSub">2~5시는 쇼핑에만 집중해요. 도착하면 탭해서 체크!</p></div></div>
+  <div class="prow"><div class="seg" id="planSeg" hidden></div><button class="tedit" data-time="1" aria-haspopup="dialog" aria-label="일정 바꾸기"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>일정</span></button></div>
   <div class="pbar" id="pbar"></div>
   <div id="mbar"></div>
   <ol class="steps" id="steps"></ol>
@@ -976,14 +985,17 @@ function renderHome(){
   const common=vis.filter(s=>s.g==="u").length,only=vis.length-common;
   const wishN=[...state.wish].filter(id=>S[id]&&visible(S[id])).length;
   const remain=vis.filter(s=>!seenM()[s.id]).length;
-  $("#hTitle").innerHTML=`<span class="hl">${kid} ${SEAS.item}</span> 쇼핑,<br>오늘 ${hlab(state.start)} 출발!`;$("#ebT").textContent=hm(state.start);$("#ebD").textContent=DAYL[state.day];$("#ebS").textContent=SEAS.yy+" "+SEAS.en;document.title=`남대문 아동복 ${hlab(state.start)} 쇼핑 가이드 (남아·여아)`;
+  const live=stage().ph==="during",home=$("#s-home"),hello=home.querySelector(".hello"),duo=$("#duo"),nx=$("#next");
+  home.classList.toggle("live",live);
+  if(live){if(hello.nextElementSibling!==duo)hello.after(duo,nx)}else if($("#bagwrap").nextElementSibling!==duo)$("#bagwrap").after(duo,nx);
+  $("#ctaL").textContent=live?"동선 보기":"동선 시작하기";
+  $("#hTitle").innerHTML=`<span class="hl">${kid} ${SEAS.item}</span> 쇼핑,<br>${live?"지금 쇼핑 중!":`오늘 ${hlab(state.start)} 출발!`}`;$("#ebT").textContent=hm(state.start);$("#ebD").textContent=DAYL[state.day];$("#ebS").textContent=SEAS.yy+" "+SEAS.en;document.title=`남대문 아동복 ${hlab(state.start)} 쇼핑 가이드 (남아·여아)`;
   const tk=["NAMDAEMUN KIDS",SEAS.yy+" "+SEAS.en.toUpperCase(),m==="b"?"BOYS EDIT":"GIRLS EDIT",en12(state.start)+" START","CASH + TARP BAG",en12(endOf())+" CLOSE"];
   $("#tk").innerHTML=[...tk,...tk].map(t=>`<span>${t}</span>`).join("");
   $("#tiles").innerHTML=`
     <button class="tile t-mint" data-go="cards" data-v="list"><span class="k">오늘 볼 매장 ${IC.arrow}</span><span class="v num" data-count="${vis.length}">0</span><span class="ch"><i>공용 ${common}</i><i>${kid} ${only}</i></span></button>
     <button class="tile t-sky" data-go="cards" data-dpick="1"><span class="k">추천 PICK ${IC.arrow}</span><span class="v num" data-count="${picks.length}">0</span><span class="ch"><i>릴스 ${vis.filter(s=>s.t.includes("reel")).length}</i><i>대기 ${vis.filter(s=>s.t.includes("hot")).length}</i></span></button>
-    <button class="tile t-lime" data-sheet="wish"><span class="k">찜한 매장 ${IC.arrow}</span><span class="v num" data-count="${wishN}">0</span><span class="ch"><i>카드 ${remain}장 남음</i></span></button>
-    <button class="tile t-pink cta" data-go="cards" data-v="deck"><span class="sp">${IC.spark}</span><span class="big">카드<br>넘기며<br>고르기</span><span class="go">${IC.go}</span></button>`;
+`;
   countUp($("#tiles"));
   renderDuo();renderNext();
   $("#facts").innerHTML=[
@@ -1208,7 +1220,7 @@ function renderPlanMine(){
     }
     const done=doneOf(x),cur=st.curK===k&&!done,B=BLD[x.k],ids=x.stores.map(q=>q.id).join(",");
     return `<li class="step ${done?"done":""} ${cur?"cur":""}"><button class="dot" data-doneall="${ids}" aria-pressed="${done}" aria-label="${B.name.split(" ")[0]} 전체 체크">${IC.check}</button>
-      <div class="sc"><div class="th"><span class="tm">${x.t}</span><span class="btag" style="--bc:${BC[x.k]}"><i></i>${B.name.split(" ")[0]} · ${B.floor}</span>${cur?'<span class="badge pk">Now</span>':""}<span class="dur">약 ${x.dur}분</span></div>
+      <div class="sc"><div class="th"><span class="tm">${x.t}</span><span class="btag" style="--bc:${BC[x.k]}"><i></i>${B.name.split(" ")[0]} · ${B.floor}</span>${cur?'<span class="badge pk">Now</span>':`<span class="dur">약 ${x.dur}분</span>`}</div>
         <ul class="stl">${x.stores.map(q=>{const d=state.done.has(sKey(q));return `<li><button class="sr ${d?"done":""}" data-done="${sKey(q)}" aria-pressed="${d}"><span class="ck">${IC.check}</span><span class="nm">${q.b}</span><span class="un">${q.u}</span></button></li>`}).join("")}</ul>
         ${x.tight?"<p><b>마감까지 빠듯해요.</b> 서둘러 보세요.</p>":""}
         <div class="row"><button class="btn sec" data-bld="${x.k}">매장 보기</button></div></div></li>`;
