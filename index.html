@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F6F0E0">
 <meta name="robots" content="noindex,nofollow">
-<meta name="build" content="2026-11-06 · 걷는 캐릭터(팔다리·고리 손잡이·따라오기)+UX 개선+네이버지도+내 찜 동선">
+<meta name="build" content="2026-11-07 · 네이버지도 장소 링크 7곳 반영+걷는 캐릭터+UX 개선+내 찜 동선">
 <title>남대문 아동복 2시 쇼핑 가이드 (남아·여아)</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -784,13 +784,13 @@ const CIRC="①②③④⑤⑥⑦";
    - 주소가 확인된 상가(v:1)는 주소만으로 검색 (이름+주소를 섞으면 결과가 안 나오는 경우가 있음)
    - 주소 미확인 상가는 위치를 아는 기준점이나 짧은 이름으로 검색 → 정확한 링크를 받으면 link에 넣기 */
 const ADDR={
-  1:{t:"회현역 6번 출구 바로 앞",nq:"회현역 6번출구",hint:"회현역 6번 출구 위치로 열어요",v:0,link:""},
-  2:{t:"정확한 주소 미확인",nq:"남대문시장 페인트타운",hint:"이름으로 검색해요 · 결과가 없을 수 있어요",v:0,link:""},
-  3:{t:"정확한 주소 미확인",nq:"남대문시장 웅이",hint:"이름으로 검색해요 · 결과가 없을 수 있어요",v:0,link:""},
-  4:{t:"남대문시장8길 16",nq:"서울 중구 남대문시장8길 16",v:1,link:""},
-  5:{t:"남대문시장길 40",nq:"서울 중구 남대문시장길 40",v:1,link:""},
-  6:{t:"남창동 31-5 · 마마 상가",nq:"서울 중구 남창동 31-5",v:1,link:""},
-  7:{t:"남대문시장8길 7 · 삼익패션타운",nq:"서울 중구 남대문시장8길 7",v:1,link:""}
+  1:{t:"회현역 6번 출구 바로 앞",nq:"회현역 6번출구",hint:"회현역 6번 출구 위치로 열어요",v:0,link:"https://naver.me/GV2U4Z8z"},
+  2:{t:"위치는 지도에서 확인",nq:"남대문시장 페인트타운",hint:"이름으로 검색해요 · 결과가 없을 수 있어요",v:0,link:"https://naver.me/Fuzf9lzs"},
+  3:{t:"위치는 지도에서 확인",nq:"남대문시장 웅이",hint:"이름으로 검색해요 · 결과가 없을 수 있어요",v:0,link:"https://naver.me/Fw7Cqacq"},
+  4:{t:"남대문시장8길 16",nq:"서울 중구 남대문시장8길 16",v:1,link:"https://naver.me/FZ2iyeZc"},
+  5:{t:"남대문시장길 40",nq:"서울 중구 남대문시장길 40",v:1,link:"https://naver.me/FafWUIJK"},
+  6:{t:"남창동 31-5 · 마마 상가",nq:"서울 중구 남창동 31-5",v:1,link:"https://naver.me/xMjtU1Yg"},
+  7:{t:"남대문시장8길 7 · 삼익패션타운",nq:"서울 중구 남대문시장8길 7",v:1,link:"https://naver.me/5iTVSaZE"}
 };
 const mapUrl=A=>A.link||"https://map.naver.com/p/search/"+encodeURIComponent(A.nq);
 const pad=n=>String(n).padStart(2,"0");
