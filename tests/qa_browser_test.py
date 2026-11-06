@@ -432,6 +432,63 @@ async def suite_layout_ux(b):
         check(f'L6 오류 없음 {t}', not pg._errs, pg._errs[:2])
         await pg.context.close()
 
+
+# ---------------------------------------------------------------- K: 캐릭터(스티커) 인터랙션
+async def suite_mascot(b):
+    names = ['콘 CON', 'CHIP', '파이', '페퍼 PEPPER', '멜멜', '아모', '헤이']
+    # 구조: 손·발 제거, 얼굴 접근성
+    pg = await newpage(b)
+    ev = pg.evaluate
+    st = await ev('({arm:document.querySelectorAll(".arm").length,legs:document.querySelectorAll(".legs").length,tab:document.querySelector("#face").getAttribute("tabindex"),role:document.querySelector("#face").getAttribute("role"),label:!!document.querySelector("#face").getAttribute("aria-label"),logo:!!document.querySelector(".brand .lg rect[stroke]")})')
+    check('K1 손·발 제거, 얼굴은 키보드 접근 가능', st['arm'] == 0 and st['legs'] == 0 and st['tab'] == '0' and st['role'] == 'button' and st['label'] and st['logo'], st)
+    # 눌림 효과
+    box = await ev('(()=>{const r=document.querySelector("#face").getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]})()')
+    await pg.mouse.move(box[0], box[1]); await pg.mouse.down(); await pg.wait_for_timeout(60)
+    pressed = await ev('document.querySelector("#bagwrap").classList.contains("press")')
+    sh = await ev('getComputedStyle(document.querySelector(".bag")).boxShadow')
+    await pg.mouse.up(); await pg.wait_for_timeout(150)
+    released = await ev('!document.querySelector("#bagwrap").classList.contains("press")')
+    check('K2 누르면 눌림(press) → 놓으면 복귀', pressed and released, (pressed, released))
+    # 탭: jelly + 말풍선 + 표정 flash 후 복귀
+    await pg.wait_for_timeout(1000)
+    base = await ev('baseMood()')
+    await pg.mouse.click(box[0], box[1]); await pg.wait_for_timeout(120)
+    r = await ev('({jelly:document.querySelector("#bagwrap").classList.contains("jelly"),say:document.querySelector("#say").textContent.length>0,mood:document.querySelector("#face").dataset.mood})')
+    check('K3 탭 → 말랑 반응 + 말풍선 + 웃는 표정', r['jelly'] and r['say'] and r['mood'] == 'joy', r)
+    await pg.wait_for_timeout(1100)
+    check('K4 표정이 원래 상태로 복귀', await ev('document.querySelector("#face").dataset.mood') == base, base)
+    # 5연타
+    await pg.wait_for_timeout(800)
+    for _ in range(5):
+        await pg.mouse.click(box[0], box[1]); await pg.wait_for_timeout(90)
+    check('K5 5연타 → "간질간질" 반응', '간질간질' in await ev('document.querySelector("#say").textContent'), await ev('document.querySelector("#say").textContent'))
+    # 키보드
+    await pg.wait_for_timeout(1700)
+    await ev('document.querySelector("#say").textContent=""')
+    await ev('document.querySelector("#face").focus()')
+    await pg.keyboard.press('Enter'); await pg.wait_for_timeout(150)
+    check('K6 Enter 키로도 반응', len(await ev('document.querySelector("#say").textContent')) > 0 and await ev('document.querySelector("#face").dataset.mood') == 'joy')
+    # 눈 추적 + 얼굴만 기울기
+    await pg.mouse.move(380, 120); await pg.wait_for_timeout(250)
+    v = await ev('(()=>{const f=document.querySelector("#face"),b=document.querySelector(".bag");return {px:parseFloat(f.style.getPropertyValue("--px")),tilt:parseFloat(document.querySelector("#bagwrap").style.getPropertyValue("--tilt")),bagRotate:getComputedStyle(b).rotate,faceRotate:getComputedStyle(f).rotate}})()')
+    check('K7 눈 추적 + 기울기(±5°) + 몸통은 고정', abs(v['px']) > 0 and abs(v['tilt']) <= 5 and v['bagRotate'] in ('none', '0deg'), v)
+    check('K8 인터랙션 중 오류 없음', not pg._errs, pg._errs[:2])
+    await pg.context.close()
+    # 상태별 표정
+    for t, exp, setup in (('08:00', 'smile', False), ('14:05', 'wow', False), ('18:00', 'sleep', False), ('14:05', 'joy', True)):
+        pg = await newpage(b, q=f'?t={t}')
+        if setup:
+            await pg.evaluate('(n)=>{setMode("g",true);state.wish.clear();n.forEach(x=>state.wish.add(S.find(s=>s.b===x&&visible(s)).id));sched().list.forEach(x=>{if(x.mine)x.stores.forEach(s=>state.done.add("s|"+s.id));else if(!x.end)state.done.add(kOf(x))});save();updWish();go("home")}', names)
+            await pg.wait_for_timeout(300)
+        check(f'K9 표정 {t} → {exp}', await pg.evaluate('document.querySelector("#face").dataset.mood') == exp, await pg.evaluate('document.querySelector("#face").dataset.mood'))
+        await pg.context.close()
+    # 모션 축소
+    pg = await newpage(b, reduced=True)
+    await pg.mouse.click(190, 300); await pg.mouse.move(380, 100); await pg.wait_for_timeout(200)
+    tl = await pg.evaluate('document.querySelector("#bagwrap").style.getPropertyValue("--tilt")')
+    check('K10 모션 축소: 기울기 없음·오류 없음', tl == '' and not pg._errs, (tl, pg._errs[:1]))
+    await pg.context.close()
+
 # ---------------------------------------------------------------- O: monkey test
 async def suite_monkey(b, steps=320, seed=7):
     rnd = random.Random(seed)
@@ -467,7 +524,7 @@ async def suite_monkey(b, steps=320, seed=7):
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch()
-        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine, suite_layout_ux):
+        for fn in (suite_layout, suite_flows, suite_storage, suite_a11y, suite_data, suite_time, suite_motion, suite_scroll, suite_mine, suite_layout_ux, suite_mascot):
             try:
                 await fn(b)
             except Exception as e:
