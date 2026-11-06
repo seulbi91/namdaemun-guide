@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F6F0E0">
 <meta name="robots" content="noindex,nofollow">
-<meta name="build" content="2026-11-06 · 캐릭터 리디자인(스티커)+네이버지도 검색어+편의성 정리+내 찜 동선">
+<meta name="build" content="2026-11-06 · 걷는 캐릭터(팔다리·고리 손잡이·따라오기)+UX 개선+네이버지도+내 찜 동선">
 <title>남대문 아동복 2시 쇼핑 가이드 (남아·여아)</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -36,7 +36,7 @@ svg{display:block}
 @media(min-width:520px){body{padding:18px 0}.app{border-radius:38px;min-height:calc(100svh - 36px);box-shadow:0 40px 90px -40px rgba(60,40,10,.45)}}
 
 .top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:max(12px,env(safe-area-inset-top)) 14px 10px;background:rgba(246,240,224,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;letter-spacing:-.02em;min-width:0}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;letter-spacing:-.02em;min-width:0;white-space:nowrap}
 .brand .lg{width:34px;height:34px;flex:none}
 .brand i{font:700 11px var(--fn);font-style:normal;background:var(--ink);color:var(--lime);border-radius:999px;padding:2px 7px;margin-left:5px;vertical-align:2px;letter-spacing:.02em}
 .mt{position:relative;display:grid;grid-template-columns:1fr 1fr;background:#fff;border-radius:999px;padding:4px;box-shadow:inset 0 0 0 1.5px var(--ink);width:128px;flex:none}
@@ -80,16 +80,15 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 .ticker span::after{content:"✦";margin-left:36px;color:var(--pink)}
 @keyframes mq{to{transform:translateX(-50%)}}
 
-/* 캐릭터: 스티커 가방 (굵은 외곽선 + 하드 그림자) */
-.bagwrap{position:relative;margin:56px 30px 34px;animation:bob 4.2s ease-in-out infinite}
-.bagwrap .handles{position:absolute;left:50%;top:-40px;width:100px;height:50px;margin-left:-50px;pointer-events:none}
-.bag{position:relative;z-index:1;top:0;left:0;background:var(--acc);border:3.5px solid var(--ink);border-radius:32px;padding:86px 12px 12px;box-shadow:6px 6px 0 var(--ink);transition:background .4s,top .12s,left .12s,box-shadow .12s}
-.bagwrap.press .bag{top:4px;left:4px;box-shadow:2px 2px 0 var(--ink)}
-.bag .spark{position:absolute;right:16px;top:14px;width:26px;height:26px;pointer-events:none;animation:twinkle 3.2s ease-in-out infinite}
+/* 캐릭터: 카드 위를 걷는 가방 (선 4.5px 통일 · 손잡이는 고리로 몸통에 연결 · 카드와 분리) */
+.bagwrap{position:relative;margin:8px 24px 34px}
+.mstage{position:relative;height:132px}
+.mch{position:absolute;left:0;bottom:-7px;width:120px;height:128px;overflow:visible;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;outline:none}
+.mch:focus-visible{outline:3px solid var(--ink);outline-offset:4px;border-radius:16px}
+.mch .acc{fill:var(--acc);transition:fill .4s}
+.mspark{transform-box:fill-box;transform-origin:center;animation:twinkle 3.2s ease-in-out infinite}
 @keyframes twinkle{0%,100%{transform:rotate(0) scale(.9)}50%{transform:rotate(90deg) scale(1.15)}}
-.bag .face{position:absolute;left:50%;top:18px;width:128px;margin-left:-64px;cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:16px;touch-action:manipulation;rotate:var(--tilt,0deg);transition:rotate .25s}
-.face:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
-.face svg{width:100%;height:auto;overflow:visible;display:block}
+.bag{position:relative;background:var(--acc);border:3.5px solid var(--ink);border-radius:28px;padding:12px;box-shadow:6px 6px 0 var(--ink);transition:background .4s}
 .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s infinite}
 .eye+.eye{animation-delay:.04s}
 @keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
@@ -97,18 +96,17 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 .face .e-joy,.face .e-sleep,.face .m-open,.face .m-joy,.face .m-sleep,.face .cheeks,.face .zz{display:none}
 .face[data-mood="wow"]{--es:1.15}
 .face[data-mood="wow"] .m-smile,.face[data-mood="joy"] .m-smile,.face[data-mood="sleep"] .m-smile{display:none}
-.face[data-mood="wow"] .m-open{display:block}
+.face[data-mood="wow"] .m-open{display:inline}
 .face[data-mood="joy"] .e-dot,.face[data-mood="sleep"] .e-dot{display:none}
-.face[data-mood="joy"] .e-joy,.face[data-mood="joy"] .m-joy,.face[data-mood="joy"] .cheeks{display:block}
-.face[data-mood="sleep"] .e-sleep,.face[data-mood="sleep"] .m-sleep,.face[data-mood="sleep"] .zz{display:block}
+.face[data-mood="joy"] .e-joy,.face[data-mood="joy"] .m-joy,.face[data-mood="joy"] .cheeks{display:inline}
+.face[data-mood="sleep"] .e-sleep,.face[data-mood="sleep"] .m-sleep,.face[data-mood="sleep"] .zz{display:inline}
 .zz path{animation:zz 2.4s ease-in-out infinite}
 .zz path+path{animation-delay:1.2s}
 @keyframes zz{0%{transform:translate(0,6px);opacity:0}30%{opacity:1}100%{transform:translate(6px,-10px);opacity:0}}
-.say{position:absolute;right:-6px;top:-74px;max-width:150px;background:#fff;color:var(--ink);border:2.5px solid var(--ink);border-radius:16px 16px 16px 4px;padding:7px 11px;font-size:13px;font-weight:800;line-height:1.35;box-shadow:3px 3px 0 var(--ink);opacity:0;transform:translateY(8px) scale(.9);transform-origin:left bottom;transition:.35s cubic-bezier(.3,1.5,.5,1);pointer-events:none;z-index:3}
+.say{position:absolute;left:0;bottom:84px;width:max-content;max-width:150px;word-break:keep-all;background:#fff;color:var(--ink);border:2.5px solid var(--ink);border-radius:16px 16px 16px 4px;padding:7px 11px;font-size:13px;font-weight:800;line-height:1.35;box-shadow:3px 3px 0 var(--ink);opacity:0;transform:translateY(8px) scale(.9);transform-origin:left bottom;transition:opacity .35s,transform .35s cubic-bezier(.3,1.5,.5,1);pointer-events:none;z-index:3}
 .say.on{opacity:1;transform:none}
-.bagwrap.jelly .bag{animation:jelly .7s}
-@keyframes jelly{0%{transform:scale(1)}25%{transform:scale(1.07,.92)}50%{transform:scale(.95,1.06)}75%{transform:scale(1.03,.98)}100%{transform:scale(1)}}
-@keyframes bob{50%{transform:translateY(-3px)}}
+.say[data-side="l"]{border-radius:16px 16px 4px 16px;transform-origin:right bottom}
+.say[data-side="t"]{bottom:114px}
 
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{position:relative;box-shadow:inset 0 0 0 2.5px var(--ink);border-radius:22px;padding:13px 13px 12px;min-height:120px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;color:var(--ink);transition:transform .15s}
@@ -122,8 +120,7 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
 .tile.cta{justify-content:space-between}
 /* 쇼핑 시간 중(live): 다음 일정이 먼저, 마스코트는 작게 */
 #s-home.live .tiles{display:none}
-#s-home.live .bag{padding-top:84px}
-#s-home.live .bagwrap{margin:44px 30px 24px}
+#s-home.live .bagwrap{margin:16px 24px 24px}
 #s-home.live .duo{margin-top:16px}
 /* 동선: 토글 + 일정 버튼 한 줄 */
 .prow{display:flex;gap:8px;align-items:center;margin-top:14px}
@@ -502,25 +499,36 @@ body[data-mode="g"] .mt .knob{transform:translateX(100%)}
   <div class="ticker" aria-hidden="true"><div class="track" id="tk"></div></div>
 
   <div class="bagwrap" id="bagwrap">
-    <div class="say" id="say" role="status" aria-live="polite"></div>
-    <svg class="handles" viewBox="0 0 100 50" aria-hidden="true"><path d="M20 50C20 4 80 4 80 50" fill="none" stroke="#17151F" stroke-width="6" stroke-linecap="round"/></svg>
-
+    <div class="mstage" id="mstage">
+      <div class="say" id="say" role="status" aria-live="polite"></div>
+      <svg class="mch" id="mch" viewBox="0 0 160 170" role="button" tabindex="0" aria-label="캐릭터 쓰다듬기">
+        <g id="mLegL"><path d="M66 128V156" stroke="#17151F" stroke-width="4.5" stroke-linecap="round"/><path d="M54 163c0-6 5-8 12-8s11 2 11 8z" fill="#17151F"/></g>
+        <g id="mLegR"><path d="M94 128V156" stroke="#17151F" stroke-width="4.5" stroke-linecap="round"/><path d="M83 163c0-6 4-8 11-8s12 2 12 8z" fill="#17151F"/></g>
+        <g id="mBody">
+          <rect x="37" y="55" width="96" height="80" rx="28" fill="#17151F"/>
+          <g id="mArmL"><path d="M38 94q-16 6-18 22" fill="none" stroke="#17151F" stroke-width="4.5" stroke-linecap="round"/><circle cx="20" cy="118" r="6.5" fill="#FFFBF1" stroke="#17151F" stroke-width="4"/></g>
+          <g id="mArmR"><path d="M122 94q16 6 18 22" fill="none" stroke="#17151F" stroke-width="4.5" stroke-linecap="round"/><circle cx="140" cy="118" r="6.5" fill="#FFFBF1" stroke="#17151F" stroke-width="4"/></g>
+          <path d="M60 52C60 20 100 20 100 52" fill="none" stroke="#17151F" stroke-width="4.5" stroke-linecap="round"/>
+          <rect class="acc" x="32" y="50" width="96" height="80" rx="28" stroke="#17151F" stroke-width="4.5"/>
+          <rect class="acc" x="53.5" y="42" width="13" height="17" rx="4" stroke="#17151F" stroke-width="4"/>
+          <rect class="acc" x="93.5" y="42" width="13" height="17" rx="4" stroke="#17151F" stroke-width="4"/>
+          <g class="face" id="face" data-mood="smile">
+            <g class="eye e-dot"><g class="pupil"><circle cx="66" cy="86" r="7" fill="#17151F"/><circle cx="68.5" cy="83.5" r="2.2" fill="#fff"/></g></g>
+            <g class="eye e-dot"><g class="pupil"><circle cx="94" cy="86" r="7" fill="#17151F"/><circle cx="96.5" cy="83.5" r="2.2" fill="#fff"/></g></g>
+            <g class="e-joy" fill="none" stroke="#17151F" stroke-width="4" stroke-linecap="round"><path d="M59 90q7-11 14 0"/><path d="M87 90q7-11 14 0"/></g>
+            <g class="e-sleep" fill="none" stroke="#17151F" stroke-width="4" stroke-linecap="round"><path d="M59 85q7 7 14 0"/><path d="M87 85q7 7 14 0"/></g>
+            <g class="cheeks"><ellipse cx="53" cy="98" rx="6" ry="4" fill="#F9A8DC"/><ellipse cx="107" cy="98" rx="6" ry="4" fill="#F9A8DC"/></g>
+            <path class="m-smile" d="M72 101q8 8 16 0" fill="none" stroke="#17151F" stroke-width="4" stroke-linecap="round"/>
+            <g class="m-open"><path d="M72 98q8-2 16 0q-1 11-8 11q-7 0-8-11z" fill="#17151F"/><ellipse cx="80" cy="106" rx="3.5" ry="2.2" fill="#F9A8DC"/></g>
+            <path class="m-joy" d="M70 98q10 13 20 0z" fill="#17151F"/>
+            <path class="m-sleep" d="M74 104h12" fill="none" stroke="#17151F" stroke-width="4" stroke-linecap="round"/>
+            <g class="zz" fill="none" stroke="#17151F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M128 36h7l-7 8h7"/><path d="M138 24h5l-5 6h5"/></g>
+          </g>
+          <path class="mspark" d="M114 62l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z" fill="#C6E83A" stroke="#17151F" stroke-width="1.8" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
     <div class="bag">
-      <svg class="spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l3 7.5 7.5 3-7.5 3-3 7.5-3-7.5-7.5-3 7.5-3z" fill="#C6E83A" stroke="#17151F" stroke-width="1.8" stroke-linejoin="round"/></svg>
-      <div class="face" id="face" data-mood="smile" role="button" tabindex="0" aria-label="캐릭터 쓰다듬기">
-        <svg viewBox="0 0 128 60" aria-hidden="true">
-          <g class="eye e-dot"><g class="pupil"><circle cx="38" cy="24" r="10" fill="#17151F"/><circle cx="41.5" cy="20.5" r="3" fill="#fff"/></g></g>
-          <g class="eye e-dot"><g class="pupil"><circle cx="90" cy="24" r="10" fill="#17151F"/><circle cx="93.5" cy="20.5" r="3" fill="#fff"/></g></g>
-          <g class="e-joy" fill="none" stroke="#17151F" stroke-width="4.5" stroke-linecap="round"><path d="M28 29q10-15 20 0"/><path d="M80 29q10-15 20 0"/></g>
-          <g class="e-sleep" fill="none" stroke="#17151F" stroke-width="4.5" stroke-linecap="round"><path d="M28 22q10 9 20 0"/><path d="M80 22q10 9 20 0"/></g>
-          <g class="cheeks"><ellipse cx="20" cy="42" rx="7" ry="4.5" fill="#F9A8DC"/><ellipse cx="108" cy="42" rx="7" ry="4.5" fill="#F9A8DC"/></g>
-          <path class="m-smile" d="M52 46q12 11 24 0" fill="none" stroke="#17151F" stroke-width="4" stroke-linecap="round"/>
-          <g class="m-open"><path d="M52 42q12-3 24 0q-1 15-12 15q-11 0-12-15z" fill="#17151F"/><ellipse cx="64" cy="53" rx="5" ry="3" fill="#F9A8DC"/></g>
-          <path class="m-joy" d="M48 42q16 19 32 0z" fill="#17151F"/>
-          <path class="m-sleep" d="M56 49h16" fill="none" stroke="#17151F" stroke-width="4" stroke-linecap="round"/>
-          <g class="zz" fill="none" stroke="#17151F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M104 14h8l-8 9h8"/><path d="M114 2h6l-6 7h6"/></g>
-        </svg>
-      </div>
       <div class="tiles" id="tiles"></div>
       <button class="wide" data-go="plan"><span id="ctaL">동선 시작하기</span><span class="ar"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
     </div>
@@ -970,36 +978,85 @@ function countUp(root){
 const QUIPS_BASE=["현금 챙겼지?","주차권은 입차 전에 결제!","타포린백 2개면 든든해","콘은 14~16시 프리입장이야","아이 키·몸무게 메모 확인!","입던 옷 1벌 대보면 실패 없어"];
 const quips=()=>[...QUIPS_BASE.filter(q=>!(state.day==="sat"&&q.includes("콘은"))),...(SEAS.c.quips||[])];
 let sayT,qi=0;
-function say(msg){const s=$("#say");if(!s)return;s.textContent=msg;s.classList.add("on");clearTimeout(sayT);sayT=setTimeout(()=>s.classList.remove("on"),2600)}
+function say(msg){const s=$("#say");if(!s)return;s.textContent=msg;try{WK.place()}catch(e){}s.classList.add("on");clearTimeout(sayT);sayT=setTimeout(()=>s.classList.remove("on"),2600)}
 function greet(){
+  if(!store.get("nm2.hint",0)){store.set("nm2.hint",1);WK.hop();return say("나를 눌러봐!")}
   const st=stage();
   if(st.ph==="before")return say(`오늘 ${hlab(state.start)} 출발! ${kidOf(state.mode)} ${SEAS.item} 사냥 가자`);
   if(st.ph==="after")return say("오늘 쇼핑 끝! 수고했어");
   const n=nextTarget();say(n?`지금은 ${stopName(n.x)} 차례야!`:"동선 다 돌았어! 찜한 곳 다시 볼까?");
 }
-function jelly(){const w=$("#bagwrap");w.classList.remove("jelly");void w.offsetWidth;w.classList.add("jelly")}
+function jelly(){WK.squash()}
 /* 표정: 출발 전=미소 · 쇼핑 중=눈 커짐+입 열림 · 마감 후=졸림 · 동선 완주=웃는 눈 */
 const baseMood=()=>{const p=progress(),ph=stage().ph;return p.n&&p.d===p.n?"joy":ph==="after"?"sleep":ph==="during"?"wow":"smile"};
 let moodT;
-const setMood=m=>{const f=$("#face");if(f&&f.dataset.mood!==m)f.dataset.mood=m};
+const setMood=m=>{const f=$("#face");if(f&&f.getAttribute("data-mood")!==m)f.setAttribute("data-mood",m)};
 function flashMood(m,ms){setMood(m);clearTimeout(moodT);moodT=setTimeout(()=>setMood(baseMood()),ms)}
 let combo=0,lastPet=0;
 function pet(){
-  jelly();const t=performance.now();combo=t-lastPet<700?combo+1:1;lastPet=t;
+  WK.hop();const t=performance.now();combo=t-lastPet<700?combo+1:1;lastPet=t;
   if(combo>=5){combo=0;flashMood("wow",1600);say("간질간질! 그만~");fxAt($("#face"),30,170);vib([10,30,10]);return}
   flashMood("joy",900);const Q=quips();say(Q[qi++%Q.length]);fxAt($("#face"),10,80);vib(10);
 }
-(()=>{const f=$("#face"),w=$("#bagwrap");let pt;
-  const up=()=>{clearTimeout(pt);w.classList.remove("press")};
-  f.addEventListener("pointerdown",()=>{w.classList.add("press");clearTimeout(pt);pt=setTimeout(up,600)});
-  ["pointerup","pointerleave","pointercancel","blur"].forEach(ev=>f.addEventListener(ev,up));
-  f.addEventListener("click",pet);
-  f.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();w.classList.add("press");pet();setTimeout(up,160)}});
+(()=>{const c=$("#mch");
+  c.addEventListener("click",pet);
+  c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pet()}});
+})();
+/* 걷기 엔진: 손가락·포인터 위치를 스프링으로 살짝 늦게 따라가고, 속도만큼 다리가 걷고 몸이 기운다.
+   스크롤하면 스크롤 방향을 쳐다보고, 2.6초 동안 입력이 없으면 가운데로 돌아온다.
+   홈이 화면에 보일 때만 돌고(IntersectionObserver·탭·가시성), 모션 축소면 가만히 서 있다. */
+const WK=(()=>{
+  const st=$("#mstage"),ch=$("#mch"),sy=$("#say"),bodyG=$("#mBody"),legL=$("#mLegL"),legR=$("#mLegR"),armL=$("#mArmL"),armR=$("#mArmR");
+  let x=null,vx=0,tx=null,ph=0,jy=0,jv=0,sq=0,last=0,raf=0,seen=true,lastIn=0,sy0=scrollY,lookT;
+  const CW=()=>ch.getBoundingClientRect().width||120,W=()=>Math.max(0,st.clientWidth-CW());
+  const rot=(g,a,cx,cy)=>g.setAttribute("transform",`rotate(${a.toFixed(2)} ${cx} ${cy})`);
+  const on=()=>state.tab==="home"&&!RM&&seen&&document.visibilityState==="visible";
+  const live=()=>$("#s-home").classList.contains("live");
+  function aim(cx){if(live())return;const r=st.getBoundingClientRect();if(!r.width)return;tx=Math.max(0,Math.min(W(),cx-r.left-CW()/2));lastIn=performance.now();kick()}
+  let drag=false;
+  const inZone=(cx,cy)=>{const r=$("#bagwrap").getBoundingClientRect();return cx>=r.left-24&&cx<=r.right+24&&cy>=r.top-24&&cy<=r.bottom+24};
+  addEventListener("pointerdown",e=>{if(state.tab!=="home"||!inZone(e.clientX,e.clientY))return;drag=e.pointerType!=="mouse";aim(e.clientX)},{passive:true});
+  addEventListener("pointermove",e=>{if(state.tab!=="home")return;if(e.pointerType==="mouse"?inZone(e.clientX,e.clientY):drag)aim(e.clientX)},{passive:true});
+  ["pointerup","pointercancel"].forEach(t=>addEventListener(t,()=>{drag=false},{passive:true}));
+  addEventListener("scroll",()=>{if(state.tab!=="home")return;const d=scrollY-sy0;sy0=scrollY;const f=$("#face");
+    if(f&&Math.abs(d)>2){f.style.setProperty("--py",(d>0?3:-3)+"px");clearTimeout(lookT);lookT=setTimeout(()=>f.style.setProperty("--py","0px"),500)}kick()},{passive:true});
+  function place(){
+    if(x===null)x=W()/2;x=Math.min(x,W());ch.style.transform=`translate(${x.toFixed(1)}px,${jy.toFixed(1)}px)`;
+    const bw=sy.offsetWidth||150,sw=st.clientWidth,cw=CW();let l=x+cw-10,side="r";
+    if(l+bw>sw+12){l=x-bw+10;side="l"}
+    if(l<-12){l=Math.max(0,Math.min(sw-bw,x+cw/2-bw/2));side="t"}
+    sy.style.left=l.toFixed(1)+"px";sy.dataset.side=side;
+  }
+  function frame(t){
+    raf=0;if(!on())return;
+    const dt=last?Math.min(2,(t-last)/16.67):1;last=t;
+    if(x===null)x=W()/2;
+    if(tx!==null&&t-lastIn>2600)tx=null;
+    if(live())tx=null;
+    const goal=tx===null?W()/2:Math.min(tx,W());
+    vx=(vx+(goal-x)*.05*dt)*Math.pow(.84,dt);x+=vx*dt;
+    const sp=Math.abs(vx),amp=Math.min(1,sp/2.5);ph+=sp*.2*dt;const s=Math.sin(ph);
+    rot(legL,s*24*amp,66,128);rot(legR,-s*24*amp,94,128);
+    const idle=Math.sin(t/520)*(1-amp)*7;
+    rot(armL,-s*20*amp+idle*.4,38,94);rot(armR,s*20*amp-idle,122,94);
+    const bob=-Math.abs(Math.sin(ph))*3*amp+Math.sin(t/700)*.8*(1-amp),lean=Math.max(-9,Math.min(9,vx*2.4));
+    if(jv!==0||jy<0){jy+=jv*dt;jv+=.5*dt;if(jy>=0){jy=0;jv=0;sq=1}}
+    sq=Math.max(0,sq-.08*dt);const ky=1-sq*.12,kx=1+sq*.08;
+    bodyG.setAttribute("transform",`translate(0 ${bob.toFixed(2)}) rotate(${lean.toFixed(2)} 80 130) translate(80 130) scale(${kx.toFixed(3)} ${ky.toFixed(3)}) translate(-80 -130)`);
+    place();
+    if(live()&&sp<.02&&Math.abs(goal-x)<.5&&jy===0&&jv===0&&sq===0){rot(legL,0,66,128);rot(legR,0,94,128);rot(armL,0,38,94);rot(armR,0,122,94);bodyG.setAttribute("transform","");return}
+    raf=requestAnimationFrame(frame);
+  }
+  function kick(){if(!raf&&on()){last=0;raf=requestAnimationFrame(frame)}}
+  if("IntersectionObserver" in window)new IntersectionObserver(es=>{seen=es[0].isIntersecting;if(seen)kick()}).observe(st);
+  document.addEventListener("visibilitychange",kick);
+  addEventListener("resize",place,{passive:true});
+  return {kick,place,hop(){if(!RM&&jy===0&&jv===0)jv=-7.5;kick()},squash(){sq=1;kick()},state:()=>({x,tx,vx,jy,sq,raf:!!raf})};
 })();
 (()=>{let raf=0,lx=0,ly=0;
   const upd=()=>{raf=0;const f=$("#face");if(!f||!f.offsetParent)return;const r=f.getBoundingClientRect();
     let dx=lx-(r.left+r.width/2),dy=ly-(r.top+r.height/2);const d=Math.hypot(dx,dy)||1,k=Math.min(4.5,d/40);
-    f.style.setProperty("--px",(dx/d*k).toFixed(2)+"px");f.style.setProperty("--py",(dy/d*k).toFixed(2)+"px");const bw=$("#bagwrap");if(bw&&!RM)bw.style.setProperty("--tilt",Math.max(-5,Math.min(5,dx/innerWidth*14)).toFixed(2)+"deg")};
+    f.style.setProperty("--px",(dx/d*k).toFixed(2)+"px");f.style.setProperty("--py",(dy/d*k).toFixed(2)+"px")};
   addEventListener("pointermove",e=>{lx=e.clientX;ly=e.clientY;if(!raf)raf=requestAnimationFrame(upd)},{passive:true});
   addEventListener("pointerdown",e=>{lx=e.clientX;ly=e.clientY;if(!raf)raf=requestAnimationFrame(upd)},{passive:true});
 })();
@@ -1022,7 +1079,7 @@ function renderHome(){
     <button class="tile t-sky" data-go="cards" data-dpick="1"><span class="k">추천 PICK ${IC.arrow}</span><span class="v num" data-count="${picks.length}">0</span><span class="ch"><i>릴스 ${vis.filter(s=>s.t.includes("reel")).length}</i><i>대기 ${vis.filter(s=>s.t.includes("hot")).length}</i></span></button>
 `;
   countUp($("#tiles"));
-  renderDuo();renderNext();setMood(baseMood());
+  renderDuo();renderNext();setMood(baseMood());WK.place();WK.kick();
   $("#facts").innerHTML=[
     ["t-ink","영업시간","09:30–"+hm(endOf()),state.day==="sat"?"평일은 17:00 마감":"토요일은 16:00 조기 마감"],
     ["t-lime","콘 프리입장","14–16시",state.day==="sat"?"평일 기준 · 토요일은 확인 필요":"번호표 없이 바로 입장"],
