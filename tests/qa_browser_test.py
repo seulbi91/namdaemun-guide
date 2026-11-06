@@ -20,7 +20,9 @@ async def newpage(b, w=390, h=860, init=None, reduced=False, q='?t=08:00'):
     pg.on('console', lambda m: pg._errs.append('CONSOLE: ' + m.text) if m.type == 'error' and 'Failed to load' not in m.text and 'ERR_' not in m.text else None)
     await pg.route('**/*', lambda r: r.continue_() if r.request.url.startswith('file:') else r.abort())
     if init: await pg.add_init_script(init)
-    await pg.goto(URL + q)
+    head, _, frag = q.partition('#')
+    if 'd=' not in head: head += ('&' if '?' in head else '?') + 'd=wk'   # 실행하는 날의 요일과 상관없이 평일로 고정
+    await pg.goto(URL + head + ('#' + frag if frag else ''))
     await pg.wait_for_timeout(350)
     return pg
 
@@ -210,7 +212,7 @@ async def suite_flows(b):
     # time sheet round trip
     await ev('go("home")'); await pg.click('.hello .tedit'); await pg.wait_for_timeout(200)
     await pg.click('#sheet [data-dset="sat"]'); await pg.click('#sheet [data-tapply]'); await pg.wait_for_timeout(300)
-    await pg.reload(); await pg.wait_for_timeout(350)
+    await pg.goto(URL + '?t=08:00'); await pg.wait_for_timeout(350)   # d 파라미터 없이 다시 열어 '저장된 요일'을 확인
     check('C29 일정(요일/시간) 저장 유지', await ev('[state.day,state.start]') == ['sat', 840], await ev('[state.day,state.start]'))
     check('C30 흐름 중 오류 없음', not pg._errs, pg._errs[:3])
     await pg.context.close()
